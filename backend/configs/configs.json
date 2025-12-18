@@ -1,0 +1,26 @@
+{
+    "server_status": "development",
+    "JWT_EXPIRATION": "1h",
+    "apiVersion": "v1",
+    "development": {
+        "maxReq": 100,
+        "numberOfCore": 1,
+        "frontend_domain": "http://localhost",
+        "backend_domain": "http://localhost",
+        "PORT": 3000
+    },
+    "staging": {
+        "maxReq": 100,
+        "numberOfCore": -1,
+        "frontend_domain": "",
+        "backend_domain": "",
+        "PORT": 5000
+    },
+    "production": {
+        "maxReq": 100,
+        "numberOfCore": -1,
+        "frontend_domain": "https://weblab.itis.pr.it",
+        "backend_domain": "https://weblab.itis.pr.it/api",
+        "PORT": 3000
+    }
+}

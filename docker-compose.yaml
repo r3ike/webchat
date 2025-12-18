@@ -1,0 +1,19 @@
+services:
+  services:
+    mongodb:
+      image: mongodb/mongodb-community-server:8.0-ubi8
+      container_name: mongodb
+      restart: unless-stopped
+      ports:
+        - "27017:27017"
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: admin
+        MONGO_INITDB_ROOT_PASSWORD: strongpassword
+        MONGO_INITDB_DATABASE: chatdb
+      volumes:
+        - mongo_data:/data/db
+      command: ["mongod", "--auth"]
+
+
+volumes:
+  mongo_data:

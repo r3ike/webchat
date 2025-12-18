@@ -1,5 +1,5 @@
 {
-    "chat-type":"group/user",
+    "chat-type":"group/one-to-one",
     "chat-name":"alex (se il typo è gruppo allora questo ccampo contiene il nome del gruppo se invece il tipo è user allora c'è il nome dell'altro utente della chat)", 
     "messages":[
         {
@@ -7,7 +7,6 @@
             "user-who-send":"alex",
             "message":"lorem ipsssfdf fdkofkdosfk dfksfkodsfk ofkofkor",
             "date":"17-12-2025"
-    
         }
     ]
 }
