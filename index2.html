@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-secondary: #020617;
+      --bg-panel: #020617;
+      --accent: #38bdf8;
+      --text-main: #e5e7eb;
+      --text-muted: #94a3b8;
+      --msg-sent: #1e293b;
+      --msg-received: #020617;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--bg-secondary);
+      border-right: 1px solid #020617;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h2 {
+      padding: 20px 20px 10px;
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .sidebar-actions {
+      display: flex;
+      gap: 10px;
+      padding: 0 20px 10px;
+    }
+
+    .sidebar-actions button {
+      flex: 1;
+      background: #020617;
+      border: 1px solid #020617;
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .sidebar-actions button:hover {
+      border-color: var(--accent);
+    }
+
+    .contacts {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .contact {
+      padding: 14px 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contact:hover {
+      background: #020617;
+    }
+
+    .contact .name {
+      font-weight: 500;
+    }
+
+    .contact .last-msg {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Chat Area */
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #020617;
+      font-weight: 500;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .message {
+      max-width: 60%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      position: relative;
+    }
+
+    .sent {
+      align-self: flex-end;
+      background: var(--msg-sent);
+    }
+
+    .received {
+      align-self: flex-start;
+      background: var(--msg-received);
+    }
+
+    .meta {
+      margin-top: 6px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .ticks {
+      color: var(--accent);
+    }
+
+    /* Input */
+    .chat-input {
+      display: flex;
+      padding: 16px;
+      border-top: 1px solid #020617;
+      gap: 12px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      background: #020617;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .chat-input button {
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      padding: 0 18px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #020617;
+    }
+
+    .chat-input button:hover {
+      opacity: 0.9;
+    }
+  
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      padding: 20px;
+      border-radius: 14px;
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-content h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .modal-content input {
+      background: #020617;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .modal-content button {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #020617;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <h2>Chat</h2>
+    <div class="sidebar-actions">
+      <button onclick="openAddContact()">+ Contatto</button>
+      <button onclick="openAddGroup()">+ Gruppo</button>
+    </div>
+    <div class="contacts">
+      <div class="contact">
+        <span class="name">Ambra</span>
+        <span class="last-msg">Ci vediamo dopo ❤️</span>
+      </div>
+      <div class="contact">
+        <span class="name">Gruppo Robotica</span>
+        <span class="last-msg">Nuovo schema caricato</span>
+      </div>
+    </div>
+      <!-- Modals -->
+    <div class="modal" id="addContactModal">
+      <div class="modal-content">
+        <h3>Nuovo contatto</h3>
+        <input type="text" id="contactName" placeholder="Nome contatto" />
+        <button onclick="addContact()">Aggiungi</button>
+      </div>
+    </div>
+
+    <div class="modal" id="addGroupModal">
+      <div class="modal-content">
+        <h3>Nuovo gruppo</h3>
+        <input type="text" id="groupName" placeholder="Nome gruppo" />
+        <button onclick="addGroup()">Crea</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="chat">
+    <div class="chat-header">Ambra</div>
+
+    <div class="messages" id="messages">
+      <div class="message received">
+        Ciao ❤️
+        <div class="meta">09:41 · 18/12</div>
+      </div>
+
+      <div class="message sent">
+        A dopo!
+        <div class="meta">09:42 · 18/12 <span class="ticks">✔✔</span></div>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input type="text" id="input" placeholder="Scrivi un messaggio..." />
+      <button onclick="sendMessage()">Invia</button>
+    </div>
+  </main>
+
+<script>
+  const messages = document.getElementById('messages');
+  const input = document.getElementById('input');
+
+  function sendMessage() {
+    if (!input.value.trim()) return;
+
+    const msg = document.createElement('div');
+    msg.classList.add('message', 'sent');
+
+    const now = new Date();
+    const time = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    const date = now.toLocaleDateString('it-IT');
+
+    msg.innerHTML = `
+      ${input.value}
+      <div class="meta">${time} · ${date} <span class="ticks">✔</span></div>
+    `;
+
+    messages.appendChild(msg);
+    messages.scrollTop = messages.scrollHeight;
+    input.value = '';
+
+    // hook backend -> qui potrai emettere evento websocket / fetch
+  }
+  const addContactModal = document.getElementById('addContactModal');
+  const addGroupModal = document.getElementById('addGroupModal');
+  const contactsContainer = document.querySelector('.contacts');
+
+  function openAddContact() {
+    addContactModal.style.display = 'flex';
+  }
+
+  function openAddGroup() {
+    addGroupModal.style.display = 'flex';
+  }
+
+  function addContact() {
+    const name = document.getElementById('contactName').value.trim();
+    if (!name) return;
+
+    const div = document.createElement('div');
+    div.className = 'contact';
+    div.innerHTML = `<span class="name">${name}</span><span class="last-msg">Nuovo contatto</span>`;
+    contactsContainer.appendChild(div);
+
+    closeModals();
+  }
+
+  function addGroup() {
+    const name = document.getElementById('groupName').value.trim();
+    if (!name) return;
+
+    const div = document.createElement('div');
+    div.className = 'contact';
+    div.innerHTML = `<span class="name">${name}</span><span class="last-msg">Gruppo creato</span>`;
+    contactsContainer.appendChild(div);
+
+    closeModals();
+  }
+
+  function closeModals() {
+    addContactModal.style.display = 'none';
+    addGroupModal.style.display = 'none';
+    document.getElementById('contactName').value = '';
+    document.getElementById('groupName').value = '';
+  }
+
+  window.onclick = e => {
+    if (e.target.classList.contains('modal')) closeModals();
+  }
+</script>
+
+</body>
+</html>

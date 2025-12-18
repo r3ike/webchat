@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-secondary: #020617;
+      --bg-panel: #020617;
+      --accent: #38bdf8;
+      --text-main: #e5e7eb;
+      --text-muted: #94a3b8;
+      --msg-sent: #1e293b;
+      --msg-received: #020617;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--bg-secondary);
+      border-right: 1px solid #020617;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h2 {
+      padding: 20px;
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .contacts {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .contact {
+      padding: 14px 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contact:hover {
+      background: #020617;
+    }
+
+    .contact .name {
+      font-weight: 500;
+    }
+
+    .contact .last-msg {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Chat Area */
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #020617;
+      font-weight: 500;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .message {
+      max-width: 60%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      position: relative;
+    }
+
+    .sent {
+      align-self: flex-end;
+      background: var(--msg-sent);
+    }
+
+    .received {
+      align-self: flex-start;
+      background: var(--msg-received);
+    }
+
+    .meta {
+      margin-top: 6px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .ticks {
+      color: var(--accent);
+    }
+
+    /* Input */
+    .chat-input {
+      display: flex;
+      padding: 16px;
+      border-top: 1px solid #020617;
+      gap: 12px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      background: #020617;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .chat-input button {
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      padding: 0 18px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #020617;
+    }
+
+    .chat-input button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <h2>Chat</h2>
+    <div class="contacts">
+      <div class="contact">
+        <span class="name">Alex</span>
+        <span class="last-msg">Ci vediamo dopo </span>
+      </div>
+      <div class="contact">
+        <span class="name">Gruppo Robotica</span>
+        <span class="last-msg">Nuovo schema caricato</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="chat">
+    <div class="chat-header">Alex</div>
+
+    <div class="messages" id="messages">
+      <div class="message received">
+        Ciao 
+        <div class="meta">09:41 · 18/12</div>
+      </div>
+
+      <div class="message sent">
+        A dopo!
+        <div class="meta">09:42 · 18/12 <span class="ticks">✔✔</span></div>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input type="text" id="input" placeholder="Scrivi un messaggio..." />
+      <button onclick="sendMessage()">Invia</button>
+    </div>
+  </main>
+
+<script>
+  const messages = document.getElementById('messages');
+  const input = document.getElementById('input');
+
+  function sendMessage() {
+    if (!input.value.trim()) return;
+
+    const msg = document.createElement('div');
+    msg.classList.add('message', 'sent');
+
+    const now = new Date();
+    const time = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    const date = now.toLocaleDateString('it-IT');
+
+    msg.innerHTML = `
+      ${input.value}
+      <div class="meta">${time} · ${date} <span class="ticks">✔</span></div>
+    `;
+
+    messages.appendChild(msg);
+    messages.scrollTop = messages.scrollHeight;
+    input.value = '';
+
+    // hook backend -> qui potrai emettere evento websocket / fetch
+  }
+</script>
+
+</body>
+</html>
