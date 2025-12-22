@@ -11,6 +11,7 @@ import {startServer} from './utils/serverStart.js'
 import {accessLoggerMiddlewares} from './middlewares/accessLogger.middlewares.js'
 
 //IMPORT ROUTES
+import authRoutes from "./routes/auth.routes.js"
 
 const configs_env = configs[configs.server_status]
 
@@ -40,6 +41,7 @@ app.set('trust proxy', true);
 app.use(accessLoggerMiddlewares)    //Middlewares per loggare ongi richiesta
 
 // Routes
+app.use(`/api/${configs.apiVersion}/auth`,authRoutes)
 
 // Cose inutili :)
 shutdownService();

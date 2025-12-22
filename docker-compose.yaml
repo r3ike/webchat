@@ -13,7 +13,44 @@ services:
       volumes:
         - mongo_data:/data/db
       command: ["mongod", "--auth"]
+      networks:
+        - chat-net
+    nginx:
+      image: nginx:alpine
+      restart: unless-stopped
+      container_name: nginxWebuser
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - ./frontend:/usr/share/nginx/html:ro
+        - ./nginx/ssl:/etc/nginx/ssl:ro
+        - ./nginx/sites-enabled:/etc/nginx/conf.d:ro
+        - ./nginx/logs:/var/log/nginx
+      depends_on:
+        - backend
+      networks:
+        - chat-net
 
+    backend:
+      build:
+        context: ./backend
+        dockerfile: Dockerfile
+      container_name: backendWebuser
+      restart: unless-stopped
+      depends_on:
+        - mongodb
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock 
+        - ./nginx/logs:/var/log:ro
+        - ./backend/logs:/backend/logs
+        - ./sites:/var/www/sites-uploaded
+        - ./nginx/snippets:/var/www/nginxConfigs
+      networks:
+        - chat-net
 
+networks:
+  chat-net:
+    external: true
 volumes:
   mongo_data:
