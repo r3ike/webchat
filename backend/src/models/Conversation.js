@@ -7,6 +7,7 @@ const ConversationSchema = new mongoose.Schema({
     },
     type:{
         type:String,
+        enum: ["private", "group"],
         required:true
     },
     createdBy:{
@@ -16,10 +17,6 @@ const ConversationSchema = new mongoose.Schema({
     members:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
-    }],
-    messages:[{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Message"
     }],
     createdAt: {
         type: Date,

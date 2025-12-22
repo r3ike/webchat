@@ -1,5 +1,6 @@
 import {User} from "../models/User.js"
 import {Conversation} from "../models/Conversation.js"
+import {Message} from "../models/Message.js"
 
 /*-----------------------------------------------------------*/
 /*                  USERS DATABASE QUERY
@@ -55,6 +56,32 @@ export async function createConversation(userId, name, type) {
     })
 }
 
+/*
+$addToSet => aggiungi senza duplicati
+*/
+export async function addChatMember(convId,newMemberId) {
+    await Conversation.findByIdAndUpdate(convId, {
+        $addToSet: { members: newMemberId }
+    })
+}
+
+export async function removeChatMember(convId,memberId) {
+    await Conversation.findByIdAndUpdate(convId, {
+        $pull: { members: memberId }
+    })
+}
+
+//Funzione che prende tutte le chat SENZA massaggi di un utente => usato per popolare la barra laterale del frontend
+export async function getAllChatByUserId(userId) {
+    return await Conversation.find({members: userId}).populate("createdBy","members")
+}
+
+
 /*-----------------------------------------------------------*/
 /*                   MESSAGES DATABASE QUERY
 /*-----------------------------------------------------------*/
+
+//Funzione che prende tutti i messaggi di una chat => Usata quando si apre una chat
+export async function getAllMessagesByConvId(conversationId) {
+    return await Message.find({conversationId:conversationId}).populate("conversationId","sender","readBy")
+}
