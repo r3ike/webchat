@@ -25,4 +25,6 @@ const MessageSchema = new mongoose.Schema({
     }
 })
 
+MessageSchema.index({ conversationId: 1, readBy: 1 });
+
 export const Message = new mongoose.Schema("Message", MessageSchema)

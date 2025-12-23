@@ -24,4 +24,6 @@ const ConversationSchema = new mongoose.Schema({
     }
 })
 
+ConversationSchema.index({ _id: 1});
+
 export const Conversation = mongoose.model("Conversation",ConversationSchema)

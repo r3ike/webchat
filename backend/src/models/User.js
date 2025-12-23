@@ -33,4 +33,6 @@ const UserSchema = new mongoose.Schema({
     }
 })
 
+UserSchema.index({ _id: 1 });
+
 export const User = mongoose.model("User", UserSchema)
