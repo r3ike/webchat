@@ -1,53 +1,38 @@
-services:
-  services:
-    mongodb:
-      image: mongodb/mongodb-community-server:8.0-ubi8
-      container_name: mongodb
-      restart: unless-stopped
-      ports:
-        - "27017:27017"
-      environment:
-        MONGO_INITDB_ROOT_USERNAME: admin
-        MONGO_INITDB_ROOT_PASSWORD: strongpassword
-        MONGO_INITDB_DATABASE: chatdb
-      volumes:
-        - mongo_data:/data/db
-      command: ["mongod", "--auth"]
-      networks:
-        - chat-net
-    nginx:
-      image: nginx:alpine
-      restart: unless-stopped
-      container_name: nginxWebuser
-      ports:
-        - "80:80"
-        - "443:443"
-      volumes:
-        - ./frontend:/usr/share/nginx/html:ro
-        - ./nginx/ssl:/etc/nginx/ssl:ro
-        - ./nginx/sites-enabled:/etc/nginx/conf.d:ro
-        - ./nginx/logs:/var/log/nginx
-      depends_on:
-        - backend
-      networks:
-        - chat-net
 
-    backend:
-      build:
-        context: ./backend
-        dockerfile: Dockerfile
-      container_name: backendWebuser
-      restart: unless-stopped
-      depends_on:
-        - mongodb
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock 
-        - ./nginx/logs:/var/log:ro
-        - ./backend/logs:/backend/logs
-        - ./sites:/var/www/sites-uploaded
-        - ./nginx/snippets:/var/www/nginxConfigs
-      networks:
-        - chat-net
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server:8.0-ubi8
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: admin
+      MONGODB_INITDB_ROOT_PASSWORD: strongpassword
+      MONGODB_INITDB_DATABASE: chatdb
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - chat-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backendWebchat
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    ports:
+      - "3000:3000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+      - ./nginx/logs:/var/log:ro
+      - ./backend/logs:/backend/logs
+      - ./sites:/var/www/sites-uploaded
+      - ./nginx/snippets:/var/www/nginxConfigs
+    networks:
+      - chat-net
 
 networks:
   chat-net:

@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { serverLogger } from "../utils/logger.js";
+import mongoose from "mongoose"
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ export async function connectDB() {
             reason: "MongoDB connesso!"
         });
     } catch (err) {
+        console.log(err);
+        
         serverLogger.error({
             event: "mongodb_connection_error",
             message: err

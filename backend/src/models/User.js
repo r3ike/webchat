@@ -23,6 +23,14 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required:true
     },
+    friends:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    pendingInvites:[{                               //richieste di amicizia di un utente
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
     lastSeen:{
         type: Date,
         default: Date.now
@@ -33,6 +41,7 @@ const UserSchema = new mongoose.Schema({
     }
 })
 
-UserSchema.index({ _id: 1 });
+UserSchema.index({ username: 1});
+
 
 export const User = mongoose.model("User", UserSchema)

@@ -8,17 +8,22 @@ import { Message } from "../models/Message.js"
 
 //Get profilo utente attraverso id
 export async function getUserById(id) {
-    return User.findById(id)
+    return User.findById(id).lean()
 }
 
-//Get profilo utente attraverso username
+//Get profilo utente attraverso username => usato per verificare la password
 export async function getUserByUsername(username) {
-    return User.findOne({ username: username })
+    return User.findOne({ username: username }).lean()
+}
+
+//Get profilo utente completo => senza password => con amici e inviti
+export async function getCompleteUserByUsername(username) {
+    return User.findOne({ username: username }).populate("friends", "username nome cognome email").populate("pendingInvites", "username").select("-password").lean()
 }
 
 //Get profilo utente attraverso email
 export async function getUserByEmail(email) {
-    return User.findOne({ email: email })
+    return User.findOne({ email: email }).lean()
 }
 
 //Aggiunta di un profilo utente => chiamata durate il registr
@@ -47,21 +52,26 @@ export async function deleteUserById(userId) {
 /*-----------------------------------------------------------*/
 
 //Creazione nuova conversazione
-export async function createConversation(userId, name, type) {
-    await Conversation.create({
+export async function createConversation(userId, membersIds, name, type) {
+    const conversation = await Conversation.create({
         name: name,
         type: type,
         createdBy: userId,
-        members: [userId]
+        members: membersIds
     })
+
+    return conversation
 }
 
-/*
-$addToSet => aggiungi senza duplicati
-*/
-export async function addChatMember(convId, newMemberId) {
+/**
+ * $addToSet => aggiungi senza duplicati
+ * $each     => prende l’array e aggiunge ogni elemento singolarmente  => Controllare come si comporta con un singolo elem
+ */
+
+export async function addChatMember(convId, newMemberIdArray) {
+    const newMemberCasted = newMemberIdArray.isArray() ? newMemberIdArray : [newMemberIdArray]
     await Conversation.findByIdAndUpdate(convId, {
-        $addToSet: { members: newMemberId }
+        $addToSet: { members: { $each: newMemberCasted } }
     })
 }
 
@@ -73,7 +83,7 @@ export async function removeChatMember(convId, memberId) {
 
 //Funzione che prende tutte le chat SENZA massaggi di un utente => usato per popolare la barra laterale del frontend
 export async function getAllChatByUserId(userId) {
-    return await Conversation.find({ members: userId }).populate("createdBy", "members")
+    return await Conversation.find({ members: { $in: [userId] } }).populate("createdBy", "username").populate("members", "username nome cognome").lean()
 }
 
 
@@ -83,7 +93,7 @@ export async function getAllChatByUserId(userId) {
 
 //Funzione che prende tutti i messaggi di una chat => Usata quando si apre una chat
 export async function getAllMessagesByConvId(conversationId) {
-    return await Message.find({ conversationId: conversationId }).populate("conversationId", "sender", "readBy")
+    return await Message.find({ conversationId: conversationId }).populate( "sender", "username").populate("readBy", "username").lean()
 }
 
 //Funzione per creare un messaggio => usato quando un utente invia un msg

@@ -5,13 +5,14 @@ import bodyParser from "body-parser";
 import cookieParser from 'cookie-parser'
 
 //IMPORT UTILITIES
-import configs from "../configs/configs.json" with {type:'json'}
+import configs from "../configs/configs.json" with { type: 'json' }
 import shutdownService from './services/shutdown.service.js';
 import {startServer} from './utils/serverStart.js'
 import {accessLoggerMiddlewares} from './middlewares/accessLogger.middlewares.js'
 
 //IMPORT ROUTES
 import authRoutes from "./routes/auth.routes.js"
+import conversationRoutes from "./routes/conversation.routes.js"
 
 const configs_env = configs[configs.server_status]
 
@@ -42,6 +43,7 @@ app.use(accessLoggerMiddlewares)    //Middlewares per loggare ongi richiesta
 
 // Routes
 app.use(`/api/${configs.apiVersion}/auth`,authRoutes)
+app.use(`/api/${configs.apiVersion}/conversation`,conversationRoutes)
 
 // Cose inutili :)
 shutdownService();
