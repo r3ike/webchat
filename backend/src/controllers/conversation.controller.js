@@ -1,4 +1,4 @@
-import {getAllChatByUserId, createConversation} from "../services/db.service.js"
+import {getAllChatByUserId, createConversation, addChatMember, removeChatMember, deleteConversation, getConversationCreatorId} from "../services/db.service.js"
 
 export async function getAllConversationsController(req,res) {
     const userId = req.user._id
@@ -45,4 +45,100 @@ export async function createConversationController(req,res) {
         console.log(error);
         return res.status(500).json({message:"Errore nella richiesta per creare una chat!"})       
     }
+}
+
+export async function addChatMemberController(req,res) {
+    const userId = req.user._id
+
+    const membersId = req.body.memberId
+    const convId = req.body.convId
+
+    /**
+     * Validazione
+     */
+    try {
+        const convCreator = await getConversationCreatorId(convId)
+    
+        if (convCreator !== userId) {
+            return res.status(400).json({message:"Solo il creatore della chat può togliere membri dalla chat!"})
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).json({message: "Chat non trovata!"})
+    }    
+
+    try {
+        await addChatMember(convId, membersId)
+
+        return res.status(200).json({message: "Membri aggiunti con successo!"})
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).json({message: "Errore nell'aggiunta dei membri!"})
+    }
+}
+
+export async function removeChatMemberController(req,res) {
+    const userId = req.user._id
+
+    const memberId = req.body.memberId
+    const convId = req.body.convId
+
+    /**
+     * Validazione
+     */
+    try {
+        const convCreator = await getConversationCreatorId(convId)
+    
+        if (convCreator !== userId) {
+            return res.status(400).json({message:"Solo il creatore della chat può togliere membri dalla chat!"})
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).json({message: "Chat non trovata!"})
+    }
+    
+    try {
+        await removeChatMember(convId, memberId)
+
+        return res.status(200).json({message: "Membri rimossi con successo!"})
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).json({message: "Errore nella rimozione dei membri!"})
+    }
+}
+
+export async function deleteConversationController(req,res) {
+    const userId = req.user._id
+
+    const convId = req.body.convId
+
+    /**
+     * Validazione
+     */
+    try {
+        const convCreator = await getConversationCreatorId(convId)
+    
+        if (convCreator !== userId) {
+            return res.status(400).json({message:"Solo il creatore della chat può togliere membri dalla chat!"})
+        }
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).json({message: "Chat non trovata!"})
+    }
+
+    try {
+        await deleteConversation(convId)
+
+        return res.status(200).json({message: "Chat eliminata con successo!"})
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).json({message: "Errore nell'eliminazione della chat!"})
+    }
+
 }

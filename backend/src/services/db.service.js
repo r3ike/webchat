@@ -18,7 +18,10 @@ export async function getUserByUsername(username) {
 
 //Get profilo utente completo => senza password => con amici e inviti
 export async function getCompleteUserByUsername(username) {
-    return User.findOne({ username: username }).populate("friends", "username nome cognome email").populate("pendingInvites", "username").select("-password").lean()
+    return User.findOne({ username: username }).populate("friends", "username nome cognome email")
+        .populate("pendingInvites", "username")
+        .select("-password")
+        .lean()
 }
 
 //Get profilo utente attraverso email
@@ -63,6 +66,20 @@ export async function createConversation(userId, membersIds, name, type) {
     return conversation
 }
 
+export async function deleteConversation(convId) {
+    await Conversation.findByIdAndDelete(convId)
+}
+/**
+ * Query per prendere l'id del creatore di una chat
+ * usato per l'eliminazione di una chat => una chat può essere eliminata solo dal suo creatore
+ */
+export async function getConversationCreatorId(convId) {
+    const user = await Conversation.findById(convId).lean()
+    const userId = user.createdBy
+
+    return userId
+}
+
 /**
  * $addToSet => aggiungi senza duplicati
  * $each     => prende l’array e aggiunge ogni elemento singolarmente  => Controllare come si comporta con un singolo elem
@@ -81,9 +98,18 @@ export async function removeChatMember(convId, memberId) {
     })
 }
 
+export async function updateLastMessage(convId, msgId) {
+    await Conversation.findByIdAndUpdate(convId, { lastMessage: msgId })
+}
+
 //Funzione che prende tutte le chat SENZA massaggi di un utente => usato per popolare la barra laterale del frontend
 export async function getAllChatByUserId(userId) {
-    return await Conversation.find({ members: { $in: [userId] } }).populate("createdBy", "username").populate("members", "username nome cognome").lean()
+    return await Conversation.find({ members: { $in: [userId] } })
+        .populate("createdBy", "username")
+        .populate("members", "username nome cognome")
+        .populate("lastMessage", "sender text createdAt")
+        .sort({ "lastMessage.createdAt": -1 })
+        .lean()
 }
 
 
@@ -93,7 +119,7 @@ export async function getAllChatByUserId(userId) {
 
 //Funzione che prende tutti i messaggi di una chat => Usata quando si apre una chat
 export async function getAllMessagesByConvId(conversationId) {
-    return await Message.find({ conversationId: conversationId }).populate( "sender", "username").populate("readBy", "username").lean()
+    return await Message.find({ conversationId: conversationId }).populate("sender", "username").populate("readBy", "username").lean()
 }
 
 //Funzione per creare un messaggio => usato quando un utente invia un msg
@@ -108,7 +134,7 @@ export async function createMessage(convId, userId, text) {
 /*
 Funzione per aggiunge il readBy ad uno specifico messaggio
 */
-export async function addReadByMessage(messageId, userId) {
+export async function updateReadByMessage(messageId, userId) {
     await Message.findByIdAndUpdate(messageId, {
         $addToSet: { readBy: userId }
     })
@@ -126,7 +152,7 @@ $lte => less than equal
 export async function updateAllReadBy(convId, userId) {
     await Message.updateMany(
         {
-            conversationId:convId,
+            conversationId: convId,
             readBy: { $ne: userId }
         },
         {
