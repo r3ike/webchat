@@ -18,7 +18,8 @@ export async function getUserByUsername(username) {
 
 //Get profilo utente completo => senza password => con amici e inviti
 export async function getCompleteUserByUsername(username) {
-    return User.findOne({ username: username }).populate("friends", "username nome cognome email")
+    return User.findOne({ username: username })
+        .populate("friends", "username nome cognome email")
         .populate("pendingInvites", "username")
         .select("-password")
         .lean()
