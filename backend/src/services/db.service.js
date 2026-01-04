@@ -74,11 +74,12 @@ export async function deleteConversation(convId) {
  * Query per prendere l'id del creatore di una chat
  * usato per l'eliminazione di una chat => una chat può essere eliminata solo dal suo creatore
  */
-export async function getConversationCreatorId(convId) {
-    const user = await Conversation.findById(convId).lean()
-    const userId = user.createdBy
+export async function getConversationCreatorIdAndType(convId) {
+    const conv = await Conversation.findById(convId).lean()
+    const userId = conv.createdBy.toString()
+    const type = conv.type
 
-    return userId
+    return {userId, type}
 }
 
 /**
@@ -87,7 +88,7 @@ export async function getConversationCreatorId(convId) {
  */
 
 export async function addChatMember(convId, newMemberIdArray) {
-    const newMemberCasted = newMemberIdArray.isArray() ? newMemberIdArray : [newMemberIdArray]
+    const newMemberCasted = Array.isArray(newMemberIdArray) ? newMemberIdArray : [newMemberIdArray]
     await Conversation.findByIdAndUpdate(convId, {
         $addToSet: { members: { $each: newMemberCasted } }
     })
@@ -99,6 +100,7 @@ export async function removeChatMember(convId, memberId) {
     })
 }
 
+//Usata quando si per aggiornare l'ultimo messaggio inviato nella chat => Verificare se è necessario il campo lastMessage nello schema mongodb
 export async function updateLastMessage(convId, msgId) {
     await Conversation.findByIdAndUpdate(convId, { lastMessage: msgId })
 }
@@ -113,6 +115,26 @@ export async function getAllChatByUserId(userId) {
         .lean()
 }
 
+//Funzione che prende tutte le chat SENZA massaggi di un utente => usato per aggiornare la barra laterale del frontend
+export async function getChatByIdAndByUserId(userId, convId) {
+    return await Conversation.find({
+        _id: convId,
+        members: {$in: [userId]}
+    })
+        .populate("createdBy", "username")
+        .populate("members", "username nome cognome")
+        .populate("lastMessage", "sender text createdAt")
+        .sort({ "lastMessage.createdAt": -1 })
+        .lean()
+}
+
+export async function isUserChatMember(convId, userId) {
+    return await Conversation.find({
+        _id: convId,
+        members: {$in: [userId]}
+    })
+}
+
 
 /*-----------------------------------------------------------*/
 /*                   MESSAGES DATABASE QUERY
@@ -121,6 +143,24 @@ export async function getAllChatByUserId(userId) {
 //Funzione che prende tutti i messaggi di una chat => Usata quando si apre una chat
 export async function getAllMessagesByConvId(conversationId) {
     return await Message.find({ conversationId: conversationId }).populate("sender", "username").populate("readBy", "username").lean()
+}
+
+export async function getMsgSender(msgId) {
+    const msg = await Message.findById(msgId)
+
+    return msg.sender.toString()
+}
+
+export async function getConvIdByMsgId(msgId) {
+    const msg = await Message.findById(msgId)
+
+    return msg.conversationId.toString()
+}
+
+export async function getAllReadBy(msgId) {
+    const msg = await Message.findById(msgId).populate("readBy", "username").lean()
+
+    return msg
 }
 
 //Funzione per creare un messaggio => usato quando un utente invia un msg
@@ -160,4 +200,8 @@ export async function updateAllReadBy(convId, userId) {
             $addToSet: { readBy: userId }
         }
     );
+}
+
+export async function deleteMessageById(msgId) {
+    await Message.findByIdAndDelete(msgId)
 }

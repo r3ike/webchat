@@ -4,7 +4,7 @@
 
 Socket message types:
 - new-message => passa il nuovo messaggio
-- update-message
+- send-message
 - update-chat
 
 Ogni update-... fa partire lato client una richiesta REST che prente tutti i dati aggiornati.

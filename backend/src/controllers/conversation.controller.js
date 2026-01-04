@@ -1,11 +1,29 @@
-import {getAllChatByUserId, createConversation, addChatMember, removeChatMember, deleteConversation, getConversationCreatorId} from "../services/db.service.js"
+import {getAllChatByUserId, getChatByIdAndByUserId, createConversation, addChatMember, removeChatMember, deleteConversation, getConversationCreatorIdAndType} from "../services/db.service.js"
 
+/**
+ * Usata all'apertura della chat
+ */
 export async function getAllConversationsController(req,res) {
     const userId = req.user._id
 
     try {
         const chats = await getAllChatByUserId(userId)
-        console.log(chats);
+        
+        return res.status(200).json(chats)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message:"Errore nella richiesta per le chat!"})
+    }
+}
+/**
+ * In caso di update di una chat es: nuovo membro o cambio nome...
+ */
+export async function getConversationsByIdController(req,res) {
+    const userId = req.user._id
+    const convId = req.params.convId
+
+    try {
+        const chats = await getChatByIdAndByUserId(userId, convId)
         
         return res.status(200).json(chats)
     } catch (error) {
@@ -49,7 +67,7 @@ export async function createConversationController(req,res) {
 
 export async function addChatMemberController(req,res) {
     const userId = req.user._id
-
+    
     const membersId = req.body.memberId
     const convId = req.body.convId
 
@@ -57,10 +75,14 @@ export async function addChatMemberController(req,res) {
      * Validazione
      */
     try {
-        const convCreator = await getConversationCreatorId(convId)
-    
+        const {convCreator, type} = await getConversationCreatorIdAndType(convId)
+        
         if (convCreator !== userId) {
-            return res.status(400).json({message:"Solo il creatore della chat può togliere membri dalla chat!"})
+            return res.status(400).json({message:"Solo il creatore della chat può aggiungere membri dalla chat!"})
+        }
+        //L'aggiunta e la rimozione dei membri è ammessa solo nella chat di tipo group
+        if (type === "private") {
+            return res.status(400).json({message:"La chat è di tipo privato!"})
         }
     } catch (error) {
         console.log(error);
@@ -89,10 +111,24 @@ export async function removeChatMemberController(req,res) {
      * Validazione
      */
     try {
-        const convCreator = await getConversationCreatorId(convId)
-    
-        if (convCreator !== userId) {
+        const {convCreator, type} = await getConversationCreatorIdAndType(convId)
+        
+        /**
+         * solo il creatore del gruppo può rimuovere membri dal gruppo 
+         * l'unico caso in cui un utente può rimuovere un membro è quando abbandona il gruppo => rimuove se stesso
+         */
+        if (convCreator !== userId && memberId !== userId) {
             return res.status(400).json({message:"Solo il creatore della chat può togliere membri dalla chat!"})
+        }
+
+        //Il creatore non può rimuoversi dal gruppo => può solo eliminarlo
+        if(memberId === convCreator){
+            return res.status(400).json({message:"Non si può rimuovere il creatore!"})
+        }
+
+        //L'aggiunta e la rimozione dei membri è ammessa solo nella chat di tipo group
+        if (type === "private") {
+            return res.status(400).json({message:"La chat è di tipo privato!"})
         }
     } catch (error) {
         console.log(error);
@@ -120,10 +156,10 @@ export async function deleteConversationController(req,res) {
      * Validazione
      */
     try {
-        const convCreator = await getConversationCreatorId(convId)
+        const {convCreator, type} = await getConversationCreatorIdAndType(convId)
     
         if (convCreator !== userId) {
-            return res.status(400).json({message:"Solo il creatore della chat può togliere membri dalla chat!"})
+            return res.status(400).json({message:"Solo il creatore della chat può eliminare la chat!"})
         }
     } catch (error) {
         console.log(error);

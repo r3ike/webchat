@@ -13,6 +13,8 @@ import {accessLoggerMiddlewares} from './middlewares/accessLogger.middlewares.js
 //IMPORT ROUTES
 import authRoutes from "./routes/auth.routes.js"
 import conversationRoutes from "./routes/conversation.routes.js"
+import messagesRoutes from "./routes/message.routes.js"
+
 
 const configs_env = configs[configs.server_status]
 
@@ -44,6 +46,7 @@ app.use(accessLoggerMiddlewares)    //Middlewares per loggare ongi richiesta
 // Routes
 app.use(`/api/${configs.apiVersion}/auth`,authRoutes)
 app.use(`/api/${configs.apiVersion}/conversation`,conversationRoutes)
+app.use(`/api/${configs.apiVersion}/conversation`,messagesRoutes)
 
 // Cose inutili :)
 shutdownService();

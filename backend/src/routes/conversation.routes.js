@@ -1,11 +1,13 @@
 import {Router} from "express"
 
-import {getAllConversationsController, createConversationController, deleteConversationController, addChatMemberController, removeChatMemberController} from "../controllers/conversation.controller.js"
+import {getAllConversationsController, getConversationsByIdController, createConversationController, deleteConversationController, addChatMemberController, removeChatMemberController} from "../controllers/conversation.controller.js"
 import {authenticateUser} from "../middlewares/auth.middlewares.js"
 
 const router = Router()
 
 router.get('/', authenticateUser, getAllConversationsController)
+
+router.get('/:convId', authenticateUser, getConversationsByIdController)
 
 router.post('/', authenticateUser, createConversationController)
 
