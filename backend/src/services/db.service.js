@@ -46,9 +46,73 @@ export async function updateUserById(userId, newData) {
     await User.findByIdAndUpdate(userId, newData)
 }
 
-//Eliminazione profilo utente
+/**
+ * Eliminazione profilo utente
+ * - Eliminare anche da tutte le liste di amicizie degli altri
+ * - Eliminare da tutte le member list delle chat
+ */
 export async function deleteUserById(userId) {
     await User.findByIdAndDelete(userId)
+}
+
+/**
+ * Query per inviare un invito di amicizia:
+ *  - aggiunge nella lista delle richieste di amicizia del "destUserId" il srcUserId
+ */
+export async function sendFriendInvite(srcUserId, destUserId) {
+    await User.findByIdAndUpdate(destUserId, {
+        $addToSet: { pendingInvites: srcUserId }
+    })
+}
+
+export async function isInPendingInvitesList(userId, senderInviteId) {
+    return await User.find({
+        _id: userId,
+        pendingInvites: {$in: [senderInviteId]}
+    }).lean()
+
+}
+
+/**
+ * Query per accettare un invito di amicizia
+ */
+export async function acceptFriendInvite(userId, inviteSenderId) {
+    //Aggiungemo a entrmbi gli utenti l'amicizia
+    await Promise.all([
+        User.findByIdAndUpdate(userId, {
+            $pull: { pendingInvites: inviteSenderId },
+            $addToSet: { friends: inviteSenderId }
+        }),
+
+        User.findByIdAndUpdate(inviteSenderId, {
+            $addToSet: { friends: userId }
+        })
+    ])
+}
+
+/**
+ * Query per declinare un invito di amicizia
+ */
+export async function declineFriendInvite(userId, inviteSenderId) {
+    User.findByIdAndUpdate(userId, {
+        $pull: { pendingInvites: inviteSenderId }
+    })
+}
+
+/**
+ * Query per rimuovere un amico
+ */
+export async function removeFriend(userId, friendId) {
+    //Togliamo da entrembe le liste di amici 
+    await Promise.all([
+        User.findByIdAndUpdate(userId, {
+            $pull: { friends: friendId }
+        }),
+
+        User.findByIdAndUpdate(friendId, {
+            $pull: { friends: userId }
+        })
+    ])
 }
 
 /*-----------------------------------------------------------*/
@@ -67,8 +131,14 @@ export async function createConversation(userId, membersIds, name, type) {
     return conversation
 }
 
+/**
+ * Eliminazione della conversazione => elimina tutti i messaggi di quella chat
+ */
 export async function deleteConversation(convId) {
-    await Conversation.findByIdAndDelete(convId)
+    await Promise.all([
+        Conversation.findByIdAndDelete(convId),
+        Message.deleteMany({ conversationId: convId })
+    ])
 }
 /**
  * Query per prendere l'id del creatore di una chat
@@ -79,7 +149,7 @@ export async function getConversationCreatorIdAndType(convId) {
     const userId = conv.createdBy.toString()
     const type = conv.type
 
-    return {userId, type}
+    return { userId, type }
 }
 
 /**
@@ -119,7 +189,7 @@ export async function getAllChatByUserId(userId) {
 export async function getChatByIdAndByUserId(userId, convId) {
     return await Conversation.find({
         _id: convId,
-        members: {$in: [userId]}
+        members: { $in: [userId] }
     })
         .populate("createdBy", "username")
         .populate("members", "username nome cognome")
@@ -131,7 +201,7 @@ export async function getChatByIdAndByUserId(userId, convId) {
 export async function isUserChatMember(convId, userId) {
     return await Conversation.find({
         _id: convId,
-        members: {$in: [userId]}
+        members: { $in: [userId] }
     })
 }
 

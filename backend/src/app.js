@@ -14,6 +14,7 @@ import {accessLoggerMiddlewares} from './middlewares/accessLogger.middlewares.js
 import authRoutes from "./routes/auth.routes.js"
 import conversationRoutes from "./routes/conversation.routes.js"
 import messagesRoutes from "./routes/message.routes.js"
+import userRoutes from "./routes/user.routes.js"
 
 
 const configs_env = configs[configs.server_status]
@@ -41,10 +42,11 @@ app.use((req, res, next) => {
 
 app.set('trust proxy', true);
 
-app.use(accessLoggerMiddlewares)    //Middlewares per loggare ongi richiesta
+app.use(accessLoggerMiddlewares)    //Middlewares per loggare ogni richiesta
 
 // Routes
 app.use(`/api/${configs.apiVersion}/auth`,authRoutes)
+app.use(`/api/${configs.apiVersion}/user`,userRoutes)
 app.use(`/api/${configs.apiVersion}/conversation`,conversationRoutes)
 app.use(`/api/${configs.apiVersion}/conversation`,messagesRoutes)
 
