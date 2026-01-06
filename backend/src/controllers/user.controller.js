@@ -92,9 +92,9 @@ export async function declineFriendInviteController(req,res) {
     const inviteSenderId = req.body.inviteSenderId //Id dell'utente che ha inviato la richiesta di amicizia
 
     try {
-        console.log(isInPendingInvitesList(userId, inviteSenderId));
+        const userInfo = await isInPendingInvitesList(userId, inviteSenderId)
         
-        if (!await isInPendingInvitesList(userId, inviteSenderId)) {
+        if (userInfo.length === 0) {
             return res.status(400).json({message: "Richiesta non presente!"})
         }
 

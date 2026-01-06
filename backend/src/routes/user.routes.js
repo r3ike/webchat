@@ -8,9 +8,9 @@ const router = Router()
 
 // User profile management routes
 
-router.delete('/', authenticateUser, deleteUserProfileController)
+// router.delete('/', authenticateUser, deleteUserProfileController)
 
-router.put('/', authenticateUser, updateUserProfileController)
+// router.put('/', authenticateUser, updateUserProfileController)
 
 // Friends management routes
 
