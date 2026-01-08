@@ -46,6 +46,12 @@ export async function updateUserById(userId, newData) {
     await User.findByIdAndUpdate(userId, newData)
 }
 
+export async function updateUserLastSeen(userId) {
+    await User.findByIdAndUpdate(userId, { 
+        $set: { lastSeen: new Date.now() } 
+    })
+}
+
 /**
  * Eliminazione profilo utente
  * - Eliminare anche da tutte le liste di amicizie degli altri
