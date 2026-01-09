@@ -1,5 +1,6 @@
-import {getAllChatByUserId, getChatByIdAndByUserId, createConversation, addChatMember, removeChatMember, deleteConversation, getConversationCreatorIdAndType} from "../services/db.service.js"
+import {getAllChatByUserId, getChatByIdAndByUserId, createConversation,getAllChatMembers, addChatMember, removeChatMember, deleteConversation, getConversationCreatorIdAndType} from "../services/db.service.js"
 
+import { emitUpdateChatEvent } from "../socket/socket.emitter.js";
 /**
  * Usata all'apertura della chat
  */
@@ -9,6 +10,7 @@ export async function getAllConversationsController(req,res) {
     try {
         const chats = await getAllChatByUserId(userId)
         
+
         return res.status(200).json(chats)
     } catch (error) {
         console.log(error);
@@ -56,7 +58,9 @@ export async function createConversationController(req,res) {
     }
 
     try {
-        await createConversation(userId, members, name, type)
+        const conversation = await createConversation(userId, members, name, type)
+
+        emitUpdateChatEvent(members, conversation._id)
 
         return res.status(200).json({message:"Chat creata con successo!"})
     } catch (error) {
@@ -92,6 +96,10 @@ export async function addChatMemberController(req,res) {
 
     try {
         await addChatMember(convId, membersId)
+
+        const members = await getAllChatMembers(convId)
+
+        emitUpdateChatEvent(members, convId)
 
         return res.status(200).json({message: "Membri aggiunti con successo!"})
     } catch (error) {
@@ -139,6 +147,10 @@ export async function removeChatMemberController(req,res) {
     try {
         await removeChatMember(convId, memberId)
 
+        const members = await getAllChatMembers(convId)
+
+        emitUpdateChatEvent(members, convId)
+
         return res.status(200).json({message: "Membri rimossi con successo!"})
     } catch (error) {
         console.log(error);
@@ -169,6 +181,10 @@ export async function deleteConversationController(req,res) {
 
     try {
         await deleteConversation(convId)
+
+        const members = await getAllChatMembers(convId)
+
+        emitUpdateChatEvent(members, convId)
 
         return res.status(200).json({message: "Chat eliminata con successo!"})
     } catch (error) {

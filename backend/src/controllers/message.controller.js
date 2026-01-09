@@ -1,6 +1,6 @@
 import {isUserChatMember,getAllMessagesByConvId, getAllReadBy, deleteMessageById, updateAllReadBy, getMsgSender, getConvIdByMsgId, getConversationCreatorIdAndType} from "../services/db.service.js"
 
-
+import { emitMsgUpdateEvent } from "../socket/socket.emitter.js";
 /**
  * Richiesta per tutta i messaggi di una chat => fatta all'apertura di una chat
  * 
@@ -82,6 +82,8 @@ export async function deleteMsgController(req,res) {
         }
 
         await deleteMessageById(msgId)
+
+        emitMsgUpdateEvent(convId)
 
         return res.status(200).json({message:"Messaggio eliminato con successo"})
     } catch (error) {

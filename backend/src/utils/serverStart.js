@@ -1,10 +1,11 @@
 import http from "http"
 
-
 import app from '../app.js';
 import {connectDB} from '../db/connect.js'
 import configs from '../../configs/configs.json' with {type: 'json'};
 import { serverLogger } from './logger.js';
+
+import {initSocket} from "../socket/initSocket.js"
 
 const configs_env = configs[configs.server_status]
 
@@ -25,4 +26,6 @@ export const startServer = async () => {
             })
         }
     });
+
+    await initSocket(httpServer)
 };

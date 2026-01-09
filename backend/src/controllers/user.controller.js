@@ -1,10 +1,22 @@
-import { deleteUserById, updateUserById, isInPendingInvitesList, sendFriendInvite, acceptFriendInvite, declineFriendInvite, removeFriend } from "../services/db.service.js";
+import {getAllUser, deleteUserById, updateUserById, isInPendingInvitesList, sendFriendInvite, acceptFriendInvite, declineFriendInvite, removeFriend } from "../services/db.service.js";
 
 /**
  * --------------------------------------------------------------------------------
  * ------------------------------- USER CONTROLLERS -------------------------------
  * --------------------------------------------------------------------------------
  */
+
+//Usata per il search dei nuovi amici
+export async function getAllUser(req,res) {
+    try {
+        const users = await getAllUser()
+
+        return res.status(200).json(users)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message:"Errore nella richiesta per prendere gli utenti!"})
+    }
+}
 
 /**
  * Delete user profile

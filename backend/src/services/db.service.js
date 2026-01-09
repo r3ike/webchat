@@ -6,6 +6,10 @@ import { Message } from "../models/Message.js"
 /*                  USERS DATABASE QUERY
 /*-----------------------------------------------------------*/
 
+export async function getAllUser() {
+    return User.find().select("username").lean()
+}
+
 //Get profilo utente attraverso id
 export async function getUserById(id) {
     return User.findById(id).lean()

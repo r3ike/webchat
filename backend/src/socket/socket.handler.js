@@ -1,6 +1,6 @@
 import {updateUserLastSeen, getAllChatMembers, createMessage, updateLastMessage} from "../services/db.service.js"
 
-import { emitNewMessageEvent, emitTypingEvent, emitUpdateChatEvent } from "./socket.emitter.js";
+import { emitNewMessageEvent, emitTypingEvent } from "./socket.emitter.js";
 
 export function registerChatHandlers(io, socket) {
     socket.on("send_message", async data => {
@@ -48,8 +48,18 @@ export function registerChatHandlers(io, socket) {
          * 
          * room name: chat:{id_conversazione}
          */
-
+        const userId = socket.user._id
+        const convPrev = data.convPrev  //Conversazione che aveva aperta prima
+        const convAtt = data.convAtt    //Conversazione aperta dall'utente
         
+        /**
+         * Nel caso sia la prima chat aperta, es all'apertura della chat, la chat prev è null
+         */
+        if(convPrev !== null){
+            socket.leave(convPrev)
+        }
+
+        socket.join(convAtt)
     })
 
     socket.on("typing", async data => {
@@ -63,6 +73,8 @@ export function registerChatHandlers(io, socket) {
 
         const userId = socket.user._id
         const convId = data.convId
+
+        emitTypingEvent(convId, userId)
     })
 
 
