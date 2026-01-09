@@ -1,7 +1,7 @@
 # Webchat
 Per questa chat web si è optato per un architettura ibrida, dove i socket servono solo per notificare eventi, i quali fanno partire richieste
 alle API rest che forniscono i dati.
-Tutta l'infrastruttura si basa su container Docker, in particolare uno per il backend **NodeJS**, uno per **NGINX** e un per **mongoDB**
+Tutta l'infrastruttura si basa su container Docker, in particolare uno per il backend **NodeJS**, uno per **NGINX** e un per **mongoDB**.
 ## Socket
 
 ### Socket events types:
@@ -11,8 +11,8 @@ Tutta l'infrastruttura si basa su container Docker, in particolare uno per il ba
 - **MSG_UPDATE**: Usata per notificare la modifica o l'eliminazione di un messaggio, nel payload viene passato l'id della conversazione.
 
 Differenza tra chat_update e msg_update:
- - **CHAT_UPDATE**: notifica la modifica di una chat => fa partire la get che prende solo le info della chat senza messaggi
- - **MSG_UPDATE**: notifica la modifica di un messaggio => fa partire la get che prende tutti i messaggi di quella chat
+ - **CHAT_UPDATE**: notifica la modifica di una chat => fa partire la get che prende solo le info della chat senza messaggi.
+ - **MSG_UPDATE**: notifica la modifica di un messaggio => fa partire la get che prende tutti i messaggi di quella chat.
 
 ### Gestione ROOM
 E' stato deciso l'utilizzo di due tipi di room:
@@ -36,4 +36,12 @@ MONGODB_PW=yyy
 MONGODB_URI=mongodb://admin:yyy@mongodb:27017/chatdb?authSource=admin
 
 JWT_SECRET=zzz
+```
+
+### .env docker.compose
+Questo .env è ancora da mettere, in ogni caso il prototipo sarebbe questo:
+```
+MONGODB_INITDB_ROOT_USERNAME=admin
+MONGODB_INITDB_ROOT_PASSWORD=yyy
+MONGODB_INITDB_DATABASE=chatdb
 ```
