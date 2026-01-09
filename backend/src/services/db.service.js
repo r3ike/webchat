@@ -191,7 +191,7 @@ export async function getAllChatByUserId(userId) {
         .lean()
 }
 
-//Funzione che prende tutte le chat SENZA massaggi di un utente => usato per aggiornare la barra laterale del frontend
+//Funzione che prende una chat specifica SENZA massaggi di un utente => usato per aggiornare la barra laterale del frontend
 export async function getChatByIdAndByUserId(userId, convId) {
     return await Conversation.find({
         _id: convId,
@@ -202,6 +202,12 @@ export async function getChatByIdAndByUserId(userId, convId) {
         .populate("lastMessage", "sender text createdAt")
         .sort({ "lastMessage.createdAt": -1 })
         .lean()
+}
+
+export async function getAllChatMembers(convId) {
+    const conversation = await Conversation.findById(convId).lean()
+
+    return conversation.members.map(id => id.toString())
 }
 
 export async function isUserChatMember(convId, userId) {
@@ -241,11 +247,13 @@ export async function getAllReadBy(msgId) {
 
 //Funzione per creare un messaggio => usato quando un utente invia un msg
 export async function createMessage(convId, userId, text) {
-    await Message.create({
+    const newMsg = await Message.create({
         conversationId: convId,
         sender: userId,
         text: text
     })
+
+    return newMsg._id.toString()
 }
 
 /*

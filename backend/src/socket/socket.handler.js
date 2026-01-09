@@ -1,8 +1,41 @@
-import {updateUserLastSeen} from "../services/db.service.js"
+import {updateUserLastSeen, getAllChatMembers, createMessage, updateLastMessage} from "../services/db.service.js"
+
+import { emitNewMessageEvent, emitTypingEvent, emitUpdateChatEvent } from "./socket.emitter.js";
 
 export function registerChatHandlers(io, socket) {
     socket.on("send_message", async data => {
-        // logica socket-only
+        /**
+         * Inviato dal client quando invia un nuovo messaggio
+         * 
+         * data conterrà: convId, text 
+         * 
+         * cose da fare:
+         *  - check se l'utente fa parte della conv
+         *  - aggiungere al db il msg
+         *  - update lastMessage della conv
+         *  - emit di un messaggio alla room
+         */
+
+        const userId = socket.user._id
+        const convId = data.convId
+        const textMsg = data.text
+        try {
+            const members = await getAllChatMembers(convId)
+
+            if (!members.includes(userId)) {
+                //Gestire il caso in cui il sender non sia membro della chat
+                return
+            }
+
+            const msgId = await createMessage(convId, userId, textMsg)
+            await updateLastMessage(convId, msgId)
+
+            emitNewMessageEvent(members, convId, userId, textMsg)
+
+        } catch (error) {
+            console.log(error);
+            return
+        }
     });
 
     socket.on("change_chat", async data => {
@@ -15,10 +48,21 @@ export function registerChatHandlers(io, socket) {
          * 
          * room name: chat:{id_conversazione}
          */
+
+        
     })
 
     socket.on("typing", async data => {
-        
+        /**
+         * Inviato dal client quando un utente sta scrivendo
+         * 
+         * nel data sarà presente l'id della conversazione in cui sta scrivendo
+         * 
+         * verrà emesso un typing socket a tutti gli utenti online su quella chat
+         */
+
+        const userId = socket.user._id
+        const convId = data.convId
     })
 
 
@@ -30,5 +74,7 @@ export function registerChatHandlers(io, socket) {
             console.log(error);
             
         }
+
+        socket.leave(`user:${userId}`) 
     })
 }

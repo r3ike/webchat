@@ -33,6 +33,8 @@ export async function initSocket(httpServer) {
             console.log(error);
         }
 
+        socket.join(`user:${userId}`)   //Viene creata una room per ogni utente, parallela a quelle delle chat, usata per notificare 
+
         registerChatHandlers(io, socket);
     });
 
