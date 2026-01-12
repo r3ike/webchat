@@ -19,8 +19,8 @@
     "production": {
         "maxReq": 100,
         "numberOfCore": -1,
-        "frontend_domain": "https://weblab.itis.pr.it",
-        "backend_domain": "https://weblab.itis.pr.it/api",
+        "frontend_domain": "https://chat.rpogliacomi.it",
+        "backend_domain": "https://chat.rpogliacomi.it/api",
         "PORT": 3000
     }
 }

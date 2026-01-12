@@ -23,7 +23,7 @@ Tali differenze sono state fatte perchè alcuni eventi è necessario che vengano
 
 ## Persistenza dei messaggi
 Per garantire la persistenza dei dati è stato deciso di utilizzare un database non relazione, ovvero MongoDB.
-Il backend, inoltre, non interagisce direttamente con il db, ma utilizzare **Mongoose** come ORM (Object-Relational Mapping).
+Il backend, inoltre, non interagisce direttamente con il db, ma utilizzare **Mongoose** come ODM (Object-Document Mapper).
 
 ## Autenticazione
 Per l'autenticazione è stato deciso un approccio basato su **JWT** (Json Web Token), il token contenente tutte le info dell'utente (Per evitare ulteriori query al DB) viene restituito attraverso un Cookie HTTP-ONLY, non accessibile dal javascript del frontend.
