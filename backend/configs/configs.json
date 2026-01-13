@@ -7,7 +7,7 @@
         "numberOfCore": 1,
         "frontend_domain": "http://localhost",
         "backend_domain": "http://localhost",
-        "socket_url": "http://localhost/ws",
+        "socket_url": "http://localhost",
         "PORT": 3000
     },
     "staging": {
@@ -23,7 +23,7 @@
         "numberOfCore": -1,
         "frontend_domain": "https://chat.rpogliacomi.it",
         "backend_domain": "https://chat.rpogliacomi.it/api",
-        "socket_url": "https://chat.rpogliacomi.it/ws",
+        "socket_url": "https://chat.rpogliacomi.it",
         "PORT": 3000
     }
 }

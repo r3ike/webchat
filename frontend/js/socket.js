@@ -9,6 +9,7 @@ class SocketManager {
     connect() {
         return new Promise((resolve, reject) => {
             this.socket = io(CONFIG.SOCKET_URL, {
+                path: "/ws",
                 withCredentials: true
             });
 

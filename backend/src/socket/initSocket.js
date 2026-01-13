@@ -12,11 +12,12 @@ const configs_env = configs[configs.server_status]
 let io
 
 export async function initSocket(httpServer) {
-    io = Server(httpServer, {
+    io = new Server(httpServer, {
         cors: {
             origin: configs_env.socket_url,
-            credential: true
-        }
+            credentials: true
+        },
+        path: "/ws",
     })
 
     io.use(socketAuthMiddlewares);
