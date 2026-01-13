@@ -7,6 +7,8 @@ import { insertUser, getUserByEmail, getUserByUsername, getCompleteUserByUsernam
 
 dotenv.config()
 
+const configs_env = configs[configs.server_status]
+
 //Controller per la registrazione di un nuovo utente => raggiungibile attraverso la route "POST /api/v1/auth/register"
 export async function registerController(req, res) {
     const username = req.body.username
@@ -65,7 +67,7 @@ export async function loginController(req, res) {
         // Imposta il cookie HttpOnly
         res.cookie('jwt', token, {
             httpOnly: true,
-            secure: true, // Solo HTTPS in produzione
+            secure: configs.server_status === "production", // Solo HTTPS in produzione
             sameSite: 'Strict'
         });
 
@@ -89,7 +91,7 @@ export async function checkAuthController(req, res) {
 //Controller per il logout di un  utente => raggiungibile attraverso la route "POST /api/v1/auth/logout"
 export async function logoutController(req, res) {
     try {
-        res.clearCookie("jwt", { httpOnly: true, secure: true, sameSite: "Strict" });
+        res.clearCookie("jwt", { httpOnly: true, secure: configs.server_status === "production", sameSite: "Strict" });
         return res.status(200).json({ message: "Logout riuscito" });
     } catch (error) {
         return res.status(500).json({ message: "Errore durante il logout" });

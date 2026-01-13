@@ -7,7 +7,7 @@ import {getAllUser, deleteUserById, updateUserById, isInPendingInvitesList, send
  */
 
 //Usata per il search dei nuovi amici
-export async function getAllUser(req,res) {
+export async function getAllUserController(req,res) {
     try {
         const users = await getAllUser()
 

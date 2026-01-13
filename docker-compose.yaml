@@ -1,5 +1,21 @@
 
 services:
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    container_name: nginxWebchat
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/sites-enabled:/etc/nginx/conf.d:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - backend
+    networks:
+      - chat-net
   mongodb:
     image: mongodb/mongodb-community-server:8.0-ubi8
     container_name: mongodb

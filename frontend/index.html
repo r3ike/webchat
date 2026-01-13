@@ -1,215 +1,27 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./src/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebChat - Messaggistica Istantanea</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
+    <div id="app"></div>
 
-    <aside class="sidebar">
-        <h2>Chat</h2>
-        <div class="sidebar-actions">
-            <button onclick="openAddContact()">+ Contatto</button>
-            <button onclick="openAddGroup()">+ Gruppo</button>
-            <button onclick="openRequests()">Richieste</button>
-        </div>
-        <div class="contacts">
-            <div class="contact">
-                <span class="name">Ambra</span>
-                <span class="last-msg">Ci vediamo dopo </span>
-            </div>
-            <div class="contact">
-                <span class="name">Gruppo Robotica</span>
-                <span class="last-msg">Nuovo schema caricato</span>
-            </div>
-        </div>
-        <!-- Modals -->
-        <div class="modal" id="addContactModal">
-            <div class="modal-content">
-                <h3>Nuovo contatto</h3>
-                <input type="text" id="contactName" placeholder="Nome contatto" />
-                <button onclick="addContact()">Aggiungi</button>
-            </div>
-        </div>
-
-        <div class="modal" id="addGroupModal">
-            <div class="modal-content">
-                <h3>Nuovo gruppo</h3>
-                <input type="text" id="groupName" placeholder="Nome gruppo" />
-                <button onclick="addGroup()">Crea</button>
-            </div>
-        </div>
-        <!-- Requests Modal -->
-        <div class="modal" id="requestsModal">
-            <div class="modal-content large">
-                <h3>Richieste</h3>
-                <div class="request-list" id="requestList"></div>
-            </div>
-        </div>  
-    </aside>
-
-    <main class="chat">
-        <div class="chat-header">Ambra</div>
-
-        <div class="messages" id="messages">
-            <div class="message received">
-                Ciao
-                <div class="meta">09:41 · 18/12</div>
-            </div>
-
-            <div class="message sent">
-                A dopo!
-                <div class="meta">09:42 · 18/12 <span class="ticks">✔✔</span></div>
-            </div>
-        </div>
-
-        <div class="chat-input">
-            <input type="text" id="input" placeholder="Scrivi un messaggio..." />
-            <button onclick="sendMessage()">Invia</button>
-        </div>
-    </main>
-
-    <script>
-        const messages = document.getElementById('messages');
-        const input = document.getElementById('input');
-
-        function sendMessage() {
-            if (!input.value.trim()) return;
-
-            const msg = document.createElement('div');
-            msg.classList.add('message', 'sent');
-
-            const now = new Date();
-            const time = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-            const date = now.toLocaleDateString('it-IT');
-
-            msg.innerHTML = `
-      ${input.value}
-      <div class="meta">${time} · ${date} <span class="ticks">✔</span></div>
-    `;
-
-            messages.appendChild(msg);
-            messages.scrollTop = messages.scrollHeight;
-            input.value = '';
-
-            // hook backend -> qui potrai emettere evento websocket / fetch
-        }
-        const addContactModal = document.getElementById('addContactModal');
-        const addGroupModal = document.getElementById('addGroupModal');
-        const contactsContainer = document.querySelector('.contacts');
-
-        function openAddContact() {
-            addContactModal.style.display = 'flex';
-        }
-
-        function openAddGroup() {
-            addGroupModal.style.display = 'flex';
-        }
-
-        function addContact() {
-            const name = document.getElementById('contactName').value.trim();
-            if (!name) return;
-
-            const div = document.createElement('div');
-            div.className = 'contact';
-            div.innerHTML = `<span class="name">${name}</span><span class="last-msg">Nuovo contatto</span>`;
-            contactsContainer.appendChild(div);
-
-            closeModals();
-        }
-
-        function addGroup() {
-            const name = document.getElementById('groupName').value.trim();
-            if (!name) return;
-
-            const div = document.createElement('div');
-            div.className = 'contact';
-            div.innerHTML = `<span class="name">${name}</span><span class="last-msg">Gruppo creato</span>`;
-            contactsContainer.appendChild(div);
-
-            closeModals();
-        }
-
-        function closeModals() {
-            addContactModal.style.display = 'none';
-            addGroupModal.style.display = 'none';
-            document.getElementById('contactName').value = '';
-            document.getElementById('groupName').value = '';
-        }
-
-        window.onclick = e => {
-            if (e.target.classList.contains('modal')) closeModals();
-        }
-        const requestsModal = document.getElementById('requestsModal');
-        const requestList = document.getElementById('requestList');
-
-        const pendingRequests = [
-            { id: 1, type: 'contatto', name: 'Marco Rossi' },
-            { id: 2, type: 'gruppo', name: 'Team Drone FPV' }
-        ];
-
-        function openRequests() {
-            requestsModal.style.display = 'flex';
-            renderRequests();
-        }
-
-        function renderRequests() {
-            requestList.innerHTML = '';
-
-            if (pendingRequests.length === 0) {
-                requestList.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">Nessuna richiesta</span>';
-                return;
-            }
-
-            pendingRequests.forEach(req => {
-                const div = document.createElement('div');
-                div.className = 'request';
-
-                div.innerHTML = `
-        <div class="request-info">
-          <strong>${req.name}</strong>
-          <span>Richiesta ${req.type}</span>
-        </div>
-        <div class="request-actions">
-          <button class="accept" onclick="acceptRequest(${req.id})">✔</button>
-          <button class="reject" onclick="rejectRequest(${req.id})">✖</button>
-        </div>
-      `;
-
-                requestList.appendChild(div);
-            });
-        }
-
-        function acceptRequest(id) {
-            const req = pendingRequests.find(r => r.id === id);
-            if (!req) return;
-
-            if (req.type === 'contatto') {
-                const div = document.createElement('div');
-                div.className = 'contact';
-                div.innerHTML = `<span class="name">${req.name}</span><span class="last-msg">Nuovo contatto</span>`;
-                contactsContainer.appendChild(div);
-            }
-
-            removeRequest(id);
-        }
-
-        function rejectRequest(id) {
-            removeRequest(id);
-        }
-
-        function removeRequest(id) {
-            const index = pendingRequests.findIndex(r => r.id === id);
-            if (index !== -1) pendingRequests.splice(index, 1);
-            renderRequests();
-        }
-    </script>
-
+    <!-- Script per Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Scripts del frontend -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/socket.js"></script>
+    <script src="js/pages/auth.js"></script>
+    <script src="js/pages/chat.js"></script>
+    <script src="js/pages/profile.js"></script>
+    <script src="js/pages/friends.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/main.js"></script>
 </body>
-
 </html>

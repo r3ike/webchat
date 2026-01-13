@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/app.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,7 +18,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.2",
-    "socket-io": "^1.0.0",
+    "socket.io": "^4.8.3",
     "winston": "^3.17.0"
   }
 }

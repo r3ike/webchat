@@ -2,9 +2,11 @@ import { Router } from "express";
 
 import {authenticateUser} from "../middlewares/auth.middlewares.js"
 
-import { deleteUserProfileController, updateUserProfileController, sendFriendInviteController, declineFriendInviteController, acceptFriendInviteController, removeFriendController } from "../controllers/user.controller.js";
+import {getAllUserController, deleteUserProfileController, updateUserProfileController, sendFriendInviteController, declineFriendInviteController, acceptFriendInviteController, removeFriendController } from "../controllers/user.controller.js";
 
 const router = Router()
+
+router.get('/',authenticateUser, getAllUserController)
 
 // User profile management routes
 
