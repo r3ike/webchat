@@ -111,14 +111,14 @@ webchat/
 │  │  │  Pagine (auth, chat, profile, friends)         │  │   │
 │  │  └────────────────────────────────────────────────┘  │   │
 │  │         ↑ ↓                         ↑ ↓              │   │
-│  │    ┌─────────────┐           ┌──────────────┐       │   │
-│  │    │   API.js    │           │  Socket.js   │       │   │
-│  │    │ (HTTP REST) │           │ (WebSocket)  │       │   │
-│  │    └─────────────┘           └──────────────┘       │   │
-│  │         ↓                          ↓                │   │
-│  │         HTTP POST/GET             WS              │   │
+│  │    ┌─────────────┐           ┌──────────────┐        │   │
+│  │    │   API.js    │           │  Socket.js   │        │   │
+│  │    │ (HTTP REST) │           │ (WebSocket)  │        │   │
+│  │    └─────────────┘           └──────────────┘        │   │
+│  │         ↓                          ↓                 │   │
+│  │         HTTP POST/GET             WS                 │   │
 │  └──────────────────────────────────────────────────────┘   │
-└─────────────────────┬──────────────────────┬─────────────────┘
+└─────────────────────┬──────────────────────┬────────────────┘
                       │                      │
         ┌─────────────┴──────────────────┐   │
         │     Connessione HTTPS/TLS      │   │
@@ -129,31 +129,31 @@ webchat/
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │         Server Express + Socket.IO                    │  │
 │  │                                                       │  │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌───────────┐  │  │
-│  │  │ Rotte Auth   │  │ Rotte Chat   │  │Rotte Msg │  │  │
-│  │  └──────────────┘  └──────────────┘  └───────────┘  │  │
-│  │         ↓                ↓                  ↓        │  │
-│  │  ┌──────────────────────────────────────────────┐   │  │
-│  │  │         Controller                           │   │  │
-│  │  │  (auth, conversation, message, user)        │   │  │
-│  │  └──────────────────────────────────────────────┘   │  │
-│  │         ↓                                          │  │
-│  │  ┌──────────────────────────────────────────────┐   │  │
-│  │  │         Servizio Database                     │   │  │
-│  │  │  (db.service.js - Query DB)                 │   │  │
-│  │  └──────────────────────────────────────────────┘   │  │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌───────────┐    │  │
+│  │  │ Rotte Auth   │  │ Rotte Chat   │  │Rotte Msg  │    │  │
+│  │  └──────────────┘  └──────────────┘  └───────────┘    │  │
+│  │         ↓                ↓                  ↓         │  │
+│  │  ┌──────────────────────────────────────────────┐     │  │
+│  │  │         Controller                           │     │  │
+│  │  │  (auth, conversation, message, user)         │     │  │
+│  │  └──────────────────────────────────────────────┘     │  │
+│  │         ↓                                             │  │
+│  │  ┌──────────────────────────────────────────────┐     │  │
+│  │  │         Servizio Database                    │     │  │
+│  │  │  (db.service.js - Query DB)                  │     │  │
+│  │  └──────────────────────────────────────────────┘     │  │
 │  └───────────────────────────────────────────────────────┘  │
-│         ↓                                                    │
-└────────────────┬──────────────────────────────────────────────┘
+│         ↓                                                   │
+└────────────────┬────────────────────────────────────────────┘
                  ↓
 ┌──────────────────────────────────────────────────────────────┐
 │              MongoDB (Database)                              │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Collezioni:                                         │
-│  │  ├── Users       (utenti, amici, richieste)          │
-│  │  ├── Messages    (messaggi con metadati)             │
-│  │  └── Conversations (conversazioni e membri)          │
-│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │  Collezioni:                                         │    |
+│  │  ├── Users       (utenti, amici, richieste)          │    |
+│  │  ├── Messages    (messaggi con metadati)             │    |
+│  │  └── Conversations (conversazioni e membri)          │    |
+│  └──────────────────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -164,15 +164,15 @@ webchat/
 ```
 Frontend                    Backend                  MongoDB
    │                          │                         │
-   ├─ Form registrazione ─────→│                         │
+   ├─ Form registrazione ────→│                         │
    │  (username, email, pwd)  │                         │
    │                          ├─ Hash password          │
    │                          ├─ Validazione dati       │
    │                          ├─ Inserisce user ───────→│
-   │                          │                        │
-   │                          │                        ├─ Salvataggio
-   │                          │←─ Conferma────────────│
-   │←─ Messaggio successo────│                         │
+   │                          │                         │
+   │                          │                         ├─ Salvataggio
+   │                          │←─ Conferma───────--─────│
+   │←─ Messaggio successo──-──│                         │
    │                          │                         │
 ```
 
@@ -182,18 +182,18 @@ Frontend                    Backend                  MongoDB
 Frontend                    Backend                  MongoDB
    │                          │                         │
    ├─ Form login ────────────→│                         │
-   │  (username, pwd)        │                         │
-   │                          ├─ Cerca user ──────────→│
-   │                          │                        │
-   │                          │←─ Dati user───────────│
+   │  (username, pwd)         │                         │
+   │                          ├─ Cerca user ───────────→│
    │                          │                         │
-   │                          ├─ Verifica password     │
-   │                          ├─ Crea JWT              │
-   │                          ├─ Set cookie HttpOnly   │
-   │←─ Successo + Cookie─────│                         │
+   │                          │←─ Dati user─────────────│
    │                          │                         │
-   ├─ Connessione WebSocket  │                         │
-   │                          │←─ Welcome + dati user──│
+   │                          ├─ Verifica password      │
+   │                          ├─ Crea JWT               │
+   │                          ├─ Set cookie HttpOnly    │
+   │←─ Successo + Cookie──────│                         │
+   │                          │                         │
+   ├─ Connessione WebSocket   │                         │
+   │                          │←─ Welcome + dati user───│
    │                          │                         │
 ```
 
@@ -204,14 +204,14 @@ Frontend                    Backend                  MongoDB
    │                          │                         │
    ├─ Evento WebSocket ──────→│                         │
    │  send_message            │                         │
-   │                          ├─ Verifica utente       │
-   │                          ├─ Crea messaggio ──────→│
-   │                          │                        │
-   │                          │                        ├─ Inserimento
-   │                          │←─ ID messaggio────────│
+   │                          ├─ Verifica utente        │
+   │                          ├─ Crea messaggio ───────→│
    │                          │                         │
-   │                          ├─ Emit evento alla room │
-   │←─ Broadcast messaggio───│                         │
+   │                          │                         ├─ Inserimento
+   │                          │←─ ID messaggio──────────│
+   │                          │                         │
+   │                          ├─ Emit evento alla room  │
+   │←─ Broadcast messaggio────│                         │
    │  (new_message)           │                         │
    │                          │                         │
 ```
