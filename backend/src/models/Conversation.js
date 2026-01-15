@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const ConversationSchema = new mongoose.Schema({
     name:{
         type:String,
-        required:true
+        required: false, // oppure rimuovi proprio "required"
+        default: null
     },
     type:{
         type:String,

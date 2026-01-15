@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import configs from "../../configs/configs.json" with {type:'json'}
 
-import { insertUser, getUserByEmail, getUserByUsername, getCompleteUserByUsername } from "../services/db.service.js"
+import { insertUser,getUserById, getUserByEmail, getUserByUsername, getCompleteUserByUsername, getUserByIdWithoutPassword } from "../services/db.service.js"
 
 dotenv.config()
 
@@ -84,8 +84,8 @@ export async function loginController(req, res) {
 //Controller per controllare se un utente ha il token => chiamata durante onload di ogni pagina frontend 
 // => raggiungibile attraverso la route "POST /api/v1/auth/check"
 export async function checkAuthController(req, res) {
-    
-    res.status(200).json(req.user)
+    const user = await getUserByIdWithoutPassword(req.user._id)
+    res.status(200).json(user)
 }
 
 //Controller per il logout di un  utente => raggiungibile attraverso la route "POST /api/v1/auth/logout"

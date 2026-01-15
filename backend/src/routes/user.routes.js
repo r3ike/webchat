@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import {authenticateUser} from "../middlewares/auth.middlewares.js"
 
-import {getAllUserController, deleteUserProfileController, updateUserProfileController, sendFriendInviteController, declineFriendInviteController, acceptFriendInviteController, removeFriendController } from "../controllers/user.controller.js";
+import {getAllUserController, getUserByIdController, deleteUserProfileController, updateUserProfileController, sendFriendInviteController, declineFriendInviteController, acceptFriendInviteController, removeFriendController } from "../controllers/user.controller.js";
 
 const router = Router()
 

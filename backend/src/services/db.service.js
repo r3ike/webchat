@@ -7,7 +7,17 @@ import { Message } from "../models/Message.js"
 /*-----------------------------------------------------------*/
 
 export async function getAllUser() {
-    return User.find().select("username").lean()
+    return User.find()
+        .select("-password")
+        .lean()
+}
+
+export async function getUserByIdWithoutPassword(userId) {
+    return User.findById(userId)
+        .select("-password")
+        .populate("friends", "username nome cognome email")
+        .populate("pendingInvites", "username nome cognome")
+        .lean()
 }
 
 //Get profilo utente attraverso id
@@ -51,8 +61,8 @@ export async function updateUserById(userId, newData) {
 }
 
 export async function updateUserLastSeen(userId) {
-    await User.findByIdAndUpdate(userId, { 
-        $set: { lastSeen: Date.now() } 
+    await User.findByIdAndUpdate(userId, {
+        $set: { lastSeen: Date.now() }
     })
 }
 
@@ -78,7 +88,7 @@ export async function sendFriendInvite(srcUserId, destUserId) {
 export async function isInPendingInvitesList(userId, senderInviteId) {
     return await User.find({
         _id: userId,
-        pendingInvites: {$in: [senderInviteId]}
+        pendingInvites: { $in: [senderInviteId] }
     }).lean()
 
 }
@@ -197,7 +207,7 @@ export async function getAllChatByUserId(userId) {
 
 //Funzione che prende una chat specifica SENZA massaggi di un utente => usato per aggiornare la barra laterale del frontend
 export async function getChatByIdAndByUserId(userId, convId) {
-    const conv =  await Conversation.find({
+    const conv = await Conversation.find({
         _id: convId,
         members: { $in: [userId] }
     })
@@ -206,7 +216,7 @@ export async function getChatByIdAndByUserId(userId, convId) {
         .populate("lastMessage", "sender text createdAt")
         .sort({ "lastMessage.createdAt": -1 })
         .lean()
-    
+
     return conv[0]
 }
 

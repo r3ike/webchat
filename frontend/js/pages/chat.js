@@ -114,6 +114,8 @@ const ChatPages = {
 
     setupSocketListeners() {
         socketManager.on('newMessage', (data) => {
+            console.log(data);
+            
             if (this.currentConversation && data.convId === this.currentConversation._id) {
                 this.addMessageToChat(data.message);
                 this.scrollToBottom();
@@ -136,11 +138,11 @@ const ChatPages = {
             }
         });
 
-        socketManager.on('chat_update', (data) => {
+        socketManager.on('chatUpdate', (data) => {
             this.loadConversations();
         });
 
-        socketManager.on('msg_update', (data) => {
+        socketManager.on('msgUpdate', (data) => {
             if (this.currentConversation && data.convId === this.currentConversation._id) {
                 this.loadChatMessages();
             }
@@ -290,10 +292,7 @@ const ChatPages = {
     async loadChatMessages() {
         try {
             const messages = await api.getMessages(this.currentConversation._id);
-
-            console.log(messages);
-            
-            
+                        
             const messagesContainer = document.getElementById('messagesContainer');
             if (!messagesContainer) return;
 
@@ -348,6 +347,7 @@ const ChatPages = {
         socketManager.sendMessage(this.currentConversation._id, text);
         messageInput.value = '';
         messageInput.style.height = 'auto';
+
     },
 
     async deleteMessage(msgId) {

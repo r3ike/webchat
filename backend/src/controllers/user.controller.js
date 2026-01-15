@@ -1,4 +1,4 @@
-import {getAllUser, deleteUserById, updateUserById, isInPendingInvitesList, sendFriendInvite, acceptFriendInvite, declineFriendInvite, removeFriend } from "../services/db.service.js";
+import {getAllUser,getUserByIdWithoutPassword, deleteUserById, updateUserById, isInPendingInvitesList, sendFriendInvite, acceptFriendInvite, declineFriendInvite, removeFriend } from "../services/db.service.js";
 
 /**
  * --------------------------------------------------------------------------------
@@ -15,6 +15,19 @@ export async function getAllUserController(req,res) {
     } catch (error) {
         console.log(error);
         return res.status(500).json({message:"Errore nella richiesta per prendere gli utenti!"})
+    }
+}
+
+export async function getUserByIdController(req,res) {
+    const userId = req.user._id
+
+    try {
+        const user = await getUserById(userId)
+
+        return res.status(200).json(user)
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({message:"Errore nella presa dei dati dell'utente!"})
     }
 }
 
