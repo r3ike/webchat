@@ -122,11 +122,10 @@ const FriendsPages = {
         try {
             // Carica i dati dell'utente per ottenere amici e richieste
             const userData = await api.checkAuth();
-            const user = userData.user;
 
-            this.friends = user.friends || [];
-            this.pendingInvites = user.sentInvites || [];
-            this.receivedInvites = user.pendingInvites || [];
+            this.friends = userData.friends || [];
+            this.pendingInvites = [];
+            this.receivedInvites = userData.pendingInvites || [];
 
             this.renderFriendsLists();
             this.updateBadges();
@@ -283,6 +282,8 @@ const FriendsPages = {
     async acceptInvite(userId) {
         try {
             await api.acceptFriendInvite(userId);
+            // Crea una conversazione privata con el usuario
+            await api.createConversation([userId], null, 'private');
             this.loadFriendsData();
         } catch (error) {
             alert('Errore nell\'accettazione della richiesta');

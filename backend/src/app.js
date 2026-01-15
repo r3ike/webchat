@@ -48,7 +48,7 @@ app.use(accessLoggerMiddlewares)    //Middlewares per loggare ogni richiesta
 app.use(`/api/${configs.apiVersion}/auth`,authRoutes)
 app.use(`/api/${configs.apiVersion}/user`,userRoutes)
 app.use(`/api/${configs.apiVersion}/conversation`,conversationRoutes)
-app.use(`/api/${configs.apiVersion}/conversation`,messagesRoutes)
+app.use(`/api/${configs.apiVersion}/messages`,messagesRoutes)
 
 // Cose inutili :)
 shutdownService();

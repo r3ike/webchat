@@ -136,11 +136,11 @@ const ChatPages = {
             }
         });
 
-        socketManager.on('chatUpdate', (data) => {
+        socketManager.on('chat_update', (data) => {
             this.loadConversations();
         });
 
-        socketManager.on('msgUpdate', (data) => {
+        socketManager.on('msg_update', (data) => {
             if (this.currentConversation && data.convId === this.currentConversation._id) {
                 this.loadChatMessages();
             }
@@ -150,7 +150,7 @@ const ChatPages = {
     async loadConversations() {
         try {
             const response = await api.getAllConversations();
-            this.conversations = response.conversations || response;
+            this.conversations = response;
             this.renderConversationsList();
         } catch (error) {
             console.error('Errore caricamento conversazioni:', error);
@@ -193,7 +193,7 @@ const ChatPages = {
     async selectConversation(convId) {
         try {
             const response = await api.getConversationById(convId);
-            this.currentConversation = response.conversation || response;
+            this.currentConversation = response;
             
             // Notifica socket del cambio chat
             socketManager.changeChat(this.currentConversation._id, convId);
@@ -289,8 +289,10 @@ const ChatPages = {
 
     async loadChatMessages() {
         try {
-            const response = await api.getConversationById(this.currentConversation._id);
-            const messages = response.messages || [];
+            const messages = await api.getMessages(this.currentConversation._id);
+
+            console.log(messages);
+            
             
             const messagesContainer = document.getElementById('messagesContainer');
             if (!messagesContainer) return;
@@ -410,7 +412,7 @@ const ChatPages = {
             }
 
             try {
-                await api.createConversation(selectedFriends, chatName);
+                await api.createConversation(selectedFriends, chatName, 'group');
                 this.loadConversations();
                 dialog.remove();
             } catch (error) {
@@ -422,7 +424,7 @@ const ChatPages = {
         const friendsList = dialog.querySelector('#friendsList');
         try {
             const response = await api.checkAuth();
-            const currentUserFriends = response.user.friends || [];
+            const currentUserFriends = response.friends || [];
             
             if (currentUserFriends.length === 0) {
                 friendsList.innerHTML = '<p>No tienes amigos aún. Agrega amigos primero.</p>';

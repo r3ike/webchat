@@ -52,7 +52,7 @@ export async function updateUserById(userId, newData) {
 
 export async function updateUserLastSeen(userId) {
     await User.findByIdAndUpdate(userId, { 
-        $set: { lastSeen: new Date.now() } 
+        $set: { lastSeen: Date.now() } 
     })
 }
 
@@ -197,7 +197,7 @@ export async function getAllChatByUserId(userId) {
 
 //Funzione che prende una chat specifica SENZA massaggi di un utente => usato per aggiornare la barra laterale del frontend
 export async function getChatByIdAndByUserId(userId, convId) {
-    return await Conversation.find({
+    const conv =  await Conversation.find({
         _id: convId,
         members: { $in: [userId] }
     })
@@ -206,6 +206,8 @@ export async function getChatByIdAndByUserId(userId, convId) {
         .populate("lastMessage", "sender text createdAt")
         .sort({ "lastMessage.createdAt": -1 })
         .lean()
+    
+    return conv[0]
 }
 
 export async function getAllChatMembers(convId) {

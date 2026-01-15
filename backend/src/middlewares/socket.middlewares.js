@@ -10,7 +10,7 @@ export async function socketAuthMiddlewares(socket, next){
     }
 
     const parsed = cookie.parse(cookies);
-    const token = parsed.access_token; // nome del cookie
+    const token = parsed.jwt; // nome del cookie
 
     if (!token) {
         return next(new Error("Token mancante"));

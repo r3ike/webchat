@@ -59,8 +59,8 @@ class API {
         return this.request('GET', `/conversation/${convId}`);
     }
 
-    async createConversation(members, name) {
-        return this.request('POST', '/conversation/', { members, name });
+    async createConversation(members, name, type = 'group') {
+        return this.request('POST', '/conversation/', { members, name, type });
     }
 
     async deleteConversation(convId) {
@@ -69,11 +69,11 @@ class API {
 
     // Message endpoints
     async getMessages(convId) {
-        return this.request('GET', `/conversation/?convId=${convId}`);
+        return this.request('GET', `/messages/${convId}`);
     }
 
     async deleteMessage(msgId, convId) {
-        return this.request('DELETE', '/conversation/', { msgId, convId });
+        return this.request('DELETE', '/messages/', { msgId, convId });
     }
 
     // User/Friends endpoints

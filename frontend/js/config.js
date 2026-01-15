@@ -1,7 +1,7 @@
 // Configurazione frontend
 const CONFIG = {
-    API_BASE_URL: 'http://localhost:3000/api/v1',
-    SOCKET_URL: 'http://localhost:3000',
+    API_BASE_URL: 'http://localhost/api/v1',
+    SOCKET_URL: 'http://localhost',
     API_VERSION: 'v1'
 };
 
@@ -12,6 +12,5 @@ const SOCKET_EVENTS = {
     CHAT_UPDATE: 'chat_update',
     MSG_UPDATE: 'msg_update',
     SEND_MESSAGE: 'send_message',
-    CHANGE_CHAT: 'change_chat',
-    TYPING_EVENT: 'typing'
+    CHANGE_CHAT: 'change_chat'
 };

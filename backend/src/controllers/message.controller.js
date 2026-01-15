@@ -10,7 +10,7 @@ export async function getAllMsgController(req,res) {
     const userId = req.user._id
 
     const convId = req.params.convId
-
+    
     
     try {
         /**

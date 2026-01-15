@@ -56,7 +56,7 @@ class SocketManager {
     }
 
     emitTyping(convId) {
-        this.socket.emit(SOCKET_EVENTS.TYPING_EVENT, { convId });
+        this.socket.emit(SOCKET_EVENTS.TYPING, { convId });
     }
 
     on(event, callback) {
