@@ -15,7 +15,8 @@ export function registerChatHandlers(io, socket) {
          *  - update lastMessage della conv
          *  - emit di un messaggio alla room
          */
-
+        console.log('recived send_message event!');
+        
         const userId = socket.user._id
         const convId = data.convId
         const textMsg = data.text
@@ -27,7 +28,7 @@ export function registerChatHandlers(io, socket) {
                 return
             }
 
-            const msgId = await createMessage(convId, userId, textMsg)
+            const msgId = await createMessage(convId, userId, textMsg)      //restituisce tutto il messaggio preso dal db
             await updateLastMessage(convId, msgId)
 
             emitNewMessageEvent(members, convId, userId, textMsg)
@@ -55,11 +56,13 @@ export function registerChatHandlers(io, socket) {
         /**
          * Nel caso sia la prima chat aperta, es all'apertura della chat, la chat prev è null
          */
+
+        console.log('recived change_chat event!');
         if(convPrev !== null){
-            socket.leave(convPrev)
+            socket.leave(`chat:${convPrev}`)
         }
 
-        socket.join(convAtt)
+        socket.join(`chat:${convAtt}`)
     })
 
     socket.on("typing", async data => {
@@ -70,6 +73,8 @@ export function registerChatHandlers(io, socket) {
          * 
          * verrà emesso un typing socket a tutti gli utenti online su quella chat
          */
+
+        console.log('recived typing event!');
 
         const userId = socket.user._id
         const convId = data.convId

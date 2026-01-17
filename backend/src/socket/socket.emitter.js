@@ -18,7 +18,7 @@ export function setSocketServer(_io) {
 }
 
 /**
- * 
+ * bisogna emettere tutto il messaggio preso dal db
  */
 export function emitNewMessageEvent(members,convId ,senderId, textMsg) {
     //Emit notifiche
@@ -30,8 +30,11 @@ export function emitNewMessageEvent(members,convId ,senderId, textMsg) {
 
     //Emit a tutti gli utenti con la chat aperta
     emitToRoom(`chat:${convId}`, socket_event.NEW_MESSAGE, {
-        senderId,
-        text: textMsg
+        sender:{
+            _id: senderId
+        },
+        text: textMsg,
+        convId
     })
 }
 

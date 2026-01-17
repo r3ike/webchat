@@ -143,6 +143,10 @@ const ChatPages = {
         });
 
         socketManager.on('msgUpdate', (data) => {
+            console.log('update messaggi');
+            console.log(data);
+            
+            
             if (this.currentConversation && data.convId === this.currentConversation._id) {
                 this.loadChatMessages();
             }

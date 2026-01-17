@@ -24,14 +24,21 @@ class SocketManager {
             });
 
             this.socket.on(SOCKET_EVENTS.NEW_MESSAGE, (data) => {
+                console.log('ricevuto evento new_message')
+                console.log(data);
+                
                 this.emit('newMessage', data);
             });
 
             this.socket.on(SOCKET_EVENTS.TYPING, (data) => {
+                console.log('ricevuto evento typing')
+                console.log(data);
                 this.emit('typing', data);
             });
 
             this.socket.on(SOCKET_EVENTS.CHAT_UPDATE, (data) => {
+                console.log('ricevuto evento chat update')
+                console.log(data);
                 this.emit('chatUpdate', data);
             });
 
