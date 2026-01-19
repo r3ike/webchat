@@ -272,6 +272,12 @@ export async function createMessage(convId, userId, text) {
     return newMsg._id.toString()
 }
 
+export async function getMsgById(msgId) {
+    const msg = await Message.findById(msgId).populate("sender","nome cognome username").lean()
+
+    return msg
+}
+
 /*
 Funzione per aggiunge il readBy ad uno specifico messaggio
 */

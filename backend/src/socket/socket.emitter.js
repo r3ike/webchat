@@ -20,7 +20,7 @@ export function setSocketServer(_io) {
 /**
  * bisogna emettere tutto il messaggio preso dal db
  */
-export function emitNewMessageEvent(members,convId ,senderId, textMsg) {
+export function emitNewMessageEvent(members,convId ,msg) {
     //Emit notifiche
     members.forEach(memberId => {
         emitToRoom(`user:${memberId}`,socket_event.CHAT_UPDATE, {
@@ -30,11 +30,7 @@ export function emitNewMessageEvent(members,convId ,senderId, textMsg) {
 
     //Emit a tutti gli utenti con la chat aperta
     emitToRoom(`chat:${convId}`, socket_event.NEW_MESSAGE, {
-        sender:{
-            _id: senderId
-        },
-        text: textMsg,
-        convId
+        msg
     })
 }
 

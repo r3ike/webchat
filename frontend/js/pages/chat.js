@@ -312,7 +312,7 @@ const ChatPages = {
         return `
             <div class="message ${isOwn ? 'own' : ''}" data-msg-id="${msg._id}">
                 <div class="message-content">
-                    ${!isOwn ? `<div class="message-sender">${msg.sender.nome}</div>` : ''}
+                    ${!isOwn ? `<div class="message-sender">${msg.sender.username}</div>` : ''}
                     <p>${this.escapeHtml(msg.text)}</p>
                     <span class="message-time">${this.formatTime(msg.createdAt)}</span>
                 </div>

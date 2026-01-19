@@ -1,4 +1,4 @@
-import {updateUserLastSeen, getAllChatMembers, createMessage, updateLastMessage} from "../services/db.service.js"
+import {updateUserLastSeen, getMsgById,getAllChatMembers, createMessage, updateLastMessage} from "../services/db.service.js"
 
 import { emitNewMessageEvent, emitTypingEvent } from "./socket.emitter.js";
 
@@ -31,7 +31,9 @@ export function registerChatHandlers(io, socket) {
             const msgId = await createMessage(convId, userId, textMsg)      //restituisce tutto il messaggio preso dal db
             await updateLastMessage(convId, msgId)
 
-            emitNewMessageEvent(members, convId, userId, textMsg)
+            const msg = await getMsgById(msgId)
+
+            emitNewMessageEvent(members, convId, msg)
 
         } catch (error) {
             console.log(error);
