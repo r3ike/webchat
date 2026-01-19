@@ -47,7 +47,7 @@ export function emitMsgUpdateEvent(convId) {
 }
 
 export function emitTypingEvent(convId, userId) {
-    emitToRoom(`chat:${convId}`, socket_event.TYPING, {userId})
+    emitToRoom(`chat:${convId}`, socket_event.TYPING, {convId,userId})
 }
 
 function emitToRoom(room, event, payload) {

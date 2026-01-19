@@ -116,8 +116,8 @@ const ChatPages = {
         socketManager.on('newMessage', (data) => {
             console.log(data);
             
-            if (this.currentConversation && data.convId === this.currentConversation._id) {
-                this.addMessageToChat(data.message);
+            if (this.currentConversation && data.msg.conversationId === this.currentConversation._id) {
+                this.addMessageToChat(data.msg);
                 this.scrollToBottom();
             }
             this.updateConversationList();
