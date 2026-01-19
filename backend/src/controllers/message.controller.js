@@ -42,7 +42,10 @@ export async function getAllReadByController(req,res) {
     const msgId =  req.params.msgId
     
     try {
-        const senderId = getMsgSender(msgId)
+        
+        const senderId = await getMsgSender(msgId)
+        console.log(senderId);
+        
 
         if (senderId !== userId) {
             return res.status(400).json({message:"Solo chi ha inviato il messaggio può vedere i visualizzatori!"})

@@ -67,6 +67,14 @@ class API {
         return this.request('DELETE', '/conversation/', { convId });
     }
 
+    async addChatMember(convId, memberId) {
+        return this.request('POST', '/conversation/member', { convId, memberId });
+    }
+
+    async removeChatMember(convId, memberId) {
+        return this.request('DELETE', '/conversation/member', { convId, memberId });
+    }
+
     // Message endpoints
     async getMessages(convId) {
         return this.request('GET', `/messages/${convId}`);
@@ -74,6 +82,10 @@ class API {
 
     async deleteMessage(msgId, convId) {
         return this.request('DELETE', '/messages/', { msgId, convId });
+    }
+
+    async getReadBy(msgId) {
+        return this.request('GET', `/messages/readby/${msgId}`);
     }
 
     // User/Friends endpoints

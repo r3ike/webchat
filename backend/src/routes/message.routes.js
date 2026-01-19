@@ -5,7 +5,7 @@ import { authenticateUser } from "../middlewares/auth.middlewares.js";
 
 const router = Router()
 
-router.get('/readby', authenticateUser, getAllReadByController)
+router.get('/readby/:msgId', authenticateUser, getAllReadByController)
 
 router.get('/:convId', authenticateUser, getAllMsgController)
 

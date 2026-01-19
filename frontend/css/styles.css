@@ -1299,3 +1299,131 @@ html, body {
         padding: 0.5rem;
     }
 }
+/* ==================== MEMBERS MODAL ==================== */
+
+.creator-section,
+.members-section,
+.add-members-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.creator-section h4,
+.members-section h4,
+.add-members-section h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0.5rem 0;
+}
+
+.members-list,
+.available-users {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.member-item,
+.available-user-item,
+.reader-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: var(--bg-secondary);
+    transition: var(--transition);
+}
+
+.member-item:hover,
+.available-user-item:hover,
+.reader-item:hover {
+    background-color: var(--gray-100);
+}
+
+.member-item img,
+.available-user-item img,
+.reader-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.member-info,
+.user-info,
+.reader-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.member-name,
+.user-name,
+.reader-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.member-username,
+.user-username,
+.reader-username {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0.2rem 0 0 0;
+}
+
+.member-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.remove-member-btn,
+.add-user-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.35rem;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    font-size: 1rem;
+}
+
+.remove-member-btn:hover {
+    background-color: rgba(240, 46, 46, 0.1);
+    color: var(--danger);
+}
+
+.add-user-btn:hover {
+    background-color: rgba(37, 211, 102, 0.1);
+    color: var(--primary);
+}
+
+.member-item.creator {
+    background-color: rgba(37, 211, 102, 0.1);
+    border: 1px solid var(--primary-light);
+}
+
+.no-users,
+.no-readers,
+.loading,
+.error {
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.read-by-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}

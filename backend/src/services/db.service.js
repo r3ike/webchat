@@ -166,10 +166,10 @@ export async function deleteConversation(convId) {
  */
 export async function getConversationCreatorIdAndType(convId) {
     const conv = await Conversation.findById(convId).lean()
-    const userId = conv.createdBy.toString()
+    const creatorId = conv.createdBy._id.toString()
     const type = conv.type
 
-    return { userId, type }
+    return { creatorId, type }
 }
 
 /**
@@ -198,7 +198,7 @@ export async function updateLastMessage(convId, msgId) {
 //Funzione che prende tutte le chat SENZA massaggi di un utente => usato per popolare la barra laterale del frontend
 export async function getAllChatByUserId(userId) {
     return await Conversation.find({ members: { $in: [userId] } })
-        .populate("createdBy", "username")
+        .populate("createdBy", "username nome cognome")
         .populate("members", "username nome cognome")
         .populate("lastMessage", "sender text createdAt")
         .sort({ "lastMessage.createdAt": -1 })
@@ -211,7 +211,7 @@ export async function getChatByIdAndByUserId(userId, convId) {
         _id: convId,
         members: { $in: [userId] }
     })
-        .populate("createdBy", "username")
+        .populate("createdBy", "username nome cognome")
         .populate("members", "username nome cognome")
         .populate("lastMessage", "sender text createdAt")
         .sort({ "lastMessage.createdAt": -1 })
@@ -246,19 +246,19 @@ export async function getAllMessagesByConvId(conversationId) {
 export async function getMsgSender(msgId) {
     const msg = await Message.findById(msgId)
 
-    return msg.sender.toString()
+    return msg.sender._id.toString()
 }
 
 export async function getConvIdByMsgId(msgId) {
     const msg = await Message.findById(msgId)
 
-    return msg.conversationId.toString()
+    return msg.conversationId._id.toString()
 }
 
 export async function getAllReadBy(msgId) {
-    const msg = await Message.findById(msgId).populate("readBy", "username").lean()
+    const msg = await Message.findById(msgId).populate("readBy", "username nome cognome").lean()
 
-    return msg
+    return msg.readBy
 }
 
 //Funzione per creare un messaggio => usato quando un utente invia un msg

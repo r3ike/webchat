@@ -120,7 +120,7 @@ const ChatPages = {
                 this.addMessageToChat(data.msg);
                 this.scrollToBottom();
             }
-            this.updateConversationList();
+            //this.updateConversationList();
         });
 
         socketManager.on('typing', (data) => {
@@ -214,6 +214,8 @@ const ChatPages = {
 
     renderChatArea() {
         const chatContent = document.getElementById('chatContent');
+        const isGroup = this.currentConversation.type === 'group';
+        const isCreator = this.currentConversation.createdBy && this.currentConversation.createdBy._id === router.currentUser._id;
         
         chatContent.innerHTML = `
             <div class="chat-header">
@@ -221,9 +223,16 @@ const ChatPages = {
                     <h3>${this.currentConversation.name}</h3>
                     <p>${this.currentConversation.members.length} partecipanti</p>
                 </div>
-                <button id="deleteConvBtn" class="icon-btn" title="Elimina chat">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <div class="header-actions">
+                    ${isGroup ? `
+                        <button id="membersBtn" class="icon-btn" title="Visualizza membri">
+                            <i class="fas fa-users"></i>
+                        </button>
+                    ` : ''}
+                    <button id="deleteConvBtn" class="icon-btn" title="Elimina chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
 
             <div id="messagesContainer" class="messages-container">
@@ -249,6 +258,7 @@ const ChatPages = {
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendMessageBtn');
         const deleteConvBtn = document.getElementById('deleteConvBtn');
+        const membersBtn = document.getElementById('membersBtn');
 
         // Auto-resize textarea
         messageInput.addEventListener('input', (e) => {
@@ -272,6 +282,12 @@ const ChatPages = {
         sendBtn.addEventListener('click', () => {
             this.sendMessage();
         });
+
+        if (membersBtn) {
+            membersBtn.addEventListener('click', () => {
+                this.showMembersModal();
+            });
+        }
 
         deleteConvBtn.addEventListener('click', async () => {
             if (confirm('Sei sicuro di voler eliminare questa chat?')) {
@@ -301,6 +317,25 @@ const ChatPages = {
             if (!messagesContainer) return;
 
             messagesContainer.innerHTML = messages.map(msg => this.renderMessage(msg)).join('');
+            
+            // Attach event listeners for messages
+            messagesContainer.querySelectorAll('.message-content').forEach(msgContent => {
+                const msgEl = msgContent.closest('.message');
+                const msgId = msgEl.dataset.msgId;
+                const isOwn = msgEl.classList.contains('own');
+                
+                if (isOwn) {
+                    msgContent.addEventListener('click', () => {
+                        this.showReadByModal(msgId);
+                    });
+                }
+            });
+            
+            // Attach delete button listeners
+            messagesContainer.querySelectorAll('.delete-msg-btn').forEach(btn => {
+                btn.addEventListener('click', () => this.deleteMessage(btn.dataset.msgId));
+            });
+            
             this.scrollToBottom();
         } catch (error) {
             console.error('Errore caricamento messaggi:', error);
@@ -311,7 +346,7 @@ const ChatPages = {
         const isOwn = msg.sender._id === router.currentUser._id;
         return `
             <div class="message ${isOwn ? 'own' : ''}" data-msg-id="${msg._id}">
-                <div class="message-content">
+                <div class="message-content" ${isOwn ? 'title="Clicca per vedere chi ha visualizzato"' : ''} style="${isOwn ? 'cursor: pointer;' : ''}">
                     ${!isOwn ? `<div class="message-sender">${msg.sender.username}</div>` : ''}
                     <p>${this.escapeHtml(msg.text)}</p>
                     <span class="message-time">${this.formatTime(msg.createdAt)}</span>
@@ -332,12 +367,22 @@ const ChatPages = {
         if (messagesContainer) {
             const messageEl = document.createElement('div');
             messageEl.innerHTML = this.renderMessage(msg);
-            messagesContainer.appendChild(messageEl.firstElementChild);
+            const msgElement = messageEl.firstElementChild;
+            messagesContainer.appendChild(msgElement);
 
             // Attach delete listener
-            const deleteBtn = messagesContainer.querySelector(`[data-msg-id="${msg._id}"] .delete-msg-btn`);
+            const deleteBtn = msgElement.querySelector('.delete-msg-btn');
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', () => this.deleteMessage(msg._id));
+            }
+            
+            // Attach read by listener (for own messages)
+            const msgContent = msgElement.querySelector('.message-content');
+            const isOwn = msgElement.classList.contains('own');
+            if (isOwn && msgContent) {
+                msgContent.addEventListener('click', () => {
+                    this.showReadByModal(msg._id);
+                });
             }
         }
     },
@@ -369,6 +414,213 @@ const ChatPages = {
         const indicator = document.getElementById('typingIndicator');
         if (indicator) {
             indicator.style.display = this.typingUsers.size > 0 ? 'block' : 'none';
+        }
+    },
+
+    async showMembersModal() {
+        const isCreator = this.currentConversation.createdBy && this.currentConversation.createdBy._id === router.currentUser._id;
+        
+        const dialog = document.createElement('div');
+        dialog.className = 'modal-overlay';
+        dialog.innerHTML = `
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Membri della chat</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="creator-section">
+                        <h4>Creatore della chat</h4>
+                        <div class="member-item creator">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(this.currentConversation.createdBy.nome + ' ' + this.currentConversation.createdBy.cognome)}" alt="creator">
+                            <div class="member-info">
+                                <p class="member-name">${this.currentConversation.createdBy.nome} ${this.currentConversation.createdBy.cognome}</p>
+                                <p class="member-username">@${this.currentConversation.createdBy.username}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="members-section">
+                        <h4>Membri della chat (${this.currentConversation.members.length})</h4>
+                        <div id="membersList" class="members-list">
+                            <!-- Membri caricati dinamicamente -->
+                        </div>
+                    </div>
+                    
+                    ${isCreator ? `
+                        <div class="add-members-section">
+                            <h4>Aggiungi membri</h4>
+                            <div id="availableUsers" class="available-users">
+                                <!-- Utenti disponibili caricati dinamicamente -->
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary close-btn">Chiudi</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(dialog);
+
+        const closeBtn = dialog.querySelectorAll('.close-btn');
+        closeBtn.forEach(btn => {
+            btn.addEventListener('click', () => dialog.remove());
+        });
+
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) dialog.remove();
+        });
+
+        // Render members list
+        const membersList = dialog.querySelector('#membersList');
+        membersList.innerHTML = this.currentConversation.members.map(member => {
+            const isSelf = member._id === router.currentUser._id;
+            const isCreatorOfConv = member._id === this.currentConversation.createdBy._id;
+            return `
+                <div class="member-item" data-member-id="${member._id}">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(member.nome + ' ' + member.cognome)}" alt="member">
+                    <div class="member-info">
+                        <p class="member-name">${member.nome} ${member.cognome}</p>
+                        <p class="member-username">@${member.username}</p>
+                    </div>
+                    ${!isCreatorOfConv ? `
+                        <div class="member-actions">
+                            ${isSelf ? `
+                                <button class="remove-member-btn" title="Abbandona il gruppo">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </button>
+                            ` : ''}
+                            ${isCreator && !isSelf ? `
+                                <button class="remove-member-btn" title="Rimuovi membro">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+
+        // Attach remove member listeners
+        membersList.querySelectorAll('.remove-member-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const memberId = e.target.closest('.member-item').dataset.memberId;
+                const isSelf = memberId === router.currentUser._id;
+                const message = isSelf ? 'Sei sicuro di voler abbandonare il gruppo?' : 'Sei sicuro di voler rimuovere questo membro?';
+                
+                if (confirm(message)) {
+                    try {
+                        await api.removeChatMember(this.currentConversation._id, memberId);
+                        this.loadConversations();
+                        this.selectConversation(this.currentConversation._id);
+                        dialog.remove();
+                    } catch (error) {
+                        alert('Errore nella rimozione del membro');
+                    }
+                }
+            });
+        });
+
+        // Load available users for adding
+        if (isCreator) {
+            const availableUsers = dialog.querySelector('#availableUsers');
+            try {
+                const allUsers = await api.getAllUsers();
+                const currentMembers = this.currentConversation.members.map(m => m._id);
+                const usersToAdd = allUsers.filter(user => !currentMembers.includes(user._id));
+
+                if (usersToAdd.length === 0) {
+                    availableUsers.innerHTML = '<p class="no-users">Tutti gli utenti sono già nel gruppo</p>';
+                } else {
+                    availableUsers.innerHTML = usersToAdd.map(user => `
+                        <div class="available-user-item" data-user-id="${user._id}">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.nome + ' ' + user.cognome)}" alt="user">
+                            <div class="user-info">
+                                <p class="user-name">${user.nome} ${user.cognome}</p>
+                                <p class="user-username">@${user.username}</p>
+                            </div>
+                            <button class="add-user-btn">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    `).join('');
+
+                    // Attach add user listeners
+                    availableUsers.querySelectorAll('.add-user-btn').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const userId = e.target.closest('.available-user-item').dataset.userId;
+                            try {
+                                await api.addChatMember(this.currentConversation._id, userId);
+                                this.loadConversations();
+                                this.selectConversation(this.currentConversation._id);
+                                this.showMembersModal(); // Ricarica il modal
+                            } catch (error) {
+                                alert('Errore nell\'aggiunta del membro');
+                            }
+                        });
+                    });
+                }
+            } catch (error) {
+                availableUsers.innerHTML = '<p>Errore nel caricamento degli utenti</p>';
+                console.error('Error loading users:', error);
+            }
+        }
+    },
+
+    async showReadByModal(msgId) {
+        const dialog = document.createElement('div');
+        dialog.className = 'modal-overlay';
+        dialog.innerHTML = `
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Visualizzazioni</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="readByList" class="read-by-list">
+                        <p class="loading">Caricamento...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary close-btn">Chiudi</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(dialog);
+
+        const closeBtn = dialog.querySelectorAll('.close-btn');
+        closeBtn.forEach(btn => {
+            btn.addEventListener('click', () => dialog.remove());
+        });
+
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) dialog.remove();
+        });
+
+        // Load read by data
+        const readByList = dialog.querySelector('#readByList');
+        try {
+            const readers = await api.getReadBy(msgId);
+            
+            if (!readers || readers.length === 0) {
+                readByList.innerHTML = '<p class="no-readers">Nessuno ha visualizzato il messaggio</p>';
+            } else {
+                readByList.innerHTML = readers.map(reader => `
+                    <div class="reader-item">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(reader.nome + ' ' + reader.cognome)}" alt="reader">
+                        <div class="reader-info">
+                            <p class="reader-name">${reader.nome} ${reader.cognome}</p>
+                            <p class="reader-username">@${reader.username}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            readByList.innerHTML = '<p class="error">Errore nel caricamento dei dati</p>';
+            console.error('Error loading read by:', error);
         }
     },
 
